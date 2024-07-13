@@ -4,10 +4,6 @@ pub use crate::errors::PlayerErrorCode;
 
 
 pub fn update_player(ctx: Context<UpdatePlayer>, attributes: [u32; 3]) -> Result<()> {
-    // if ctx.accounts.user.is_signer {
-    //     msg!("User {} is the signer", *ctx.accounts.user.key);
-    // }
-
     let player = &mut ctx.accounts.player;
     let attributes_total: u32 = attributes.iter().sum();
     let player_attributes: u32 = player.attributes.iter().sum();
@@ -27,12 +23,6 @@ pub fn update_player(ctx: Context<UpdatePlayer>, attributes: [u32; 3]) -> Result
 
     // Update xp
     player.xp -= attributes_total;
-
-    // msg!(
-    //     "Player '{}' updated with attributes {:?}!",
-    //     player.username,
-    //     player.attributes
-    // );
     Ok(())
 }
 

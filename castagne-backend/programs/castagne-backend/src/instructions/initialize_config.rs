@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 use crate::state::config::Config;
 
+
 pub fn initialize_config(ctx: Context<InitializeConfig>) -> Result<()> {
     let game_config = &mut ctx.accounts.game_config;
     game_config.owner = *ctx.accounts.owner.key;

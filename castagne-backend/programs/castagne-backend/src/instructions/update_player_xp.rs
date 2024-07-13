@@ -13,12 +13,6 @@ pub fn update_player_xp(ctx: Context<UpdatePlayerXP>, xp: u32) -> Result<()> {
     }
 
     player.xp = xp;
-
-    // msg!(
-    //     "Player '{}' updated with xp {} !",
-    //     player.username,
-    //     player.xp,
-    // );
     Ok(())
 }
 
