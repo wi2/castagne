@@ -2,44 +2,47 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { CastagneBackend } from "../target/types/castagne_backend";
 import { assert, expect } from "chai";
+import { AnchorProvider, Wallet } from "@coral-xyz/anchor/dist/cjs/provider";
 
 
 
 describe("castagne-backend", () => {
   const program = anchor.workspace.CastagneBackend as Program<CastagneBackend>;
-  const provider = anchor.AnchorProvider.env();
+  const provider: AnchorProvider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
-  const adminWallet = provider.wallet;
+  const adminWallet = provider.wallet as anchor.Wallet;
 
   const PLAYER_XP_INIT = 1000;
   const userName1 = "bob";
   const userName2 = "alice";
   const userName3 = "lol";
 
-  const player1 = anchor.web3.Keypair.generate();
-  const player2 = anchor.web3.Keypair.generate();
-  const player3 = anchor.web3.Keypair.generate();
-  let configPda: anchor.web3.PublicKey;
+  const player1: anchor.web3.Keypair = anchor.web3.Keypair.generate();
+  const player2: anchor.web3.Keypair = anchor.web3.Keypair.generate();
+  const player3: anchor.web3.Keypair = anchor.web3.Keypair.generate();
+  // let configPda: anchor.web3.PublicKey;
+
+  console.log('admin  :', adminWallet.publicKey.toString());
+  console.log('player1:', player1.publicKey.toString());
+  console.log('player2:', player2.publicKey.toString());
+  console.log('player3:', player3.publicKey.toString());
 
   it("initialize the config", async () => {
     // The config is used to prevent any updates on XP except by the admin
     // (temporary solution)
     // Config PDA
-    let [_configPda, _] = anchor.web3.PublicKey.findProgramAddressSync(
+    let [configPda, _] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("config"), adminWallet.publicKey.toBuffer()],
       program.programId
     );
 
-    configPda = _configPda;
-
     await program.methods
-      .initialize()
+      .initializeConfig()
       .accounts({
         owner: adminWallet.publicKey,
         config: configPda,
         systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .signers([])
+      } as any)
       .rpc();
 
     let resultConfig = await program.account.config.fetch(configPda);
@@ -48,23 +51,19 @@ describe("castagne-backend", () => {
 
 
   it("Fails to initialize the config a second time", async () => {
-    let configPda: anchor.web3.PublicKey;
-    let [_configPda, _] = anchor.web3.PublicKey.findProgramAddressSync(
+    let [configPda, _] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("config"), adminWallet.publicKey.toBuffer()],
       program.programId
     );
 
-    configPda = _configPda;
-
     try {
       await program.methods
-      .initialize()
+      .initializeConfig()
       .accounts({
         config: configPda,
         systemProgram: anchor.web3.SystemProgram.programId,
         owner: adminWallet.publicKey,
-      })
-      .signers([])
+      } as any)
       .rpc();
 
       expect.fail("The second initialize call should have failed but it succeeded");
@@ -86,7 +85,7 @@ describe("castagne-backend", () => {
 
     await program.provider.connection.confirmTransaction(txairdropPlayer1);
     await program.provider.connection.confirmTransaction(txairdropPlayer2);
-    await program.provider.connection.confirmTransaction(txairdropPlayer3); 
+    await program.provider.connection.confirmTransaction(txairdropPlayer3);
 
     // PLayer PDAs
     const [player1Pda] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -110,7 +109,7 @@ describe("castagne-backend", () => {
         user: player1.publicKey,
         player: player1Pda,
         systemProgram: anchor.web3.SystemProgram.programId,
-      })
+      } as any)
       .signers([player1])
       .rpc();
 
@@ -120,7 +119,7 @@ describe("castagne-backend", () => {
         user: player2.publicKey,
         player: player2Pda,
         systemProgram: anchor.web3.SystemProgram.programId,
-      })
+      } as any)
       .signers([player2])
       .rpc();
 
@@ -130,23 +129,23 @@ describe("castagne-backend", () => {
         user: player3.publicKey,
         player: player3Pda,
         systemProgram: anchor.web3.SystemProgram.programId,
-      })
+      } as any)
       .signers([player3])
       .rpc();
 
     let players = await program.account.player.all();
-    let player = await program.account.player.fetch(player1Pda)
+    let player = await program.account.player.fetch(player1Pda);
 
     expect(players.length === 3);
     expect(player.user == player1.publicKey);
     expect(player.username == userName1);
     expect(player.attributes.length == 3);
-    expect(player.attributes.reduce((partialSum, a) => partialSum + a, 0) == 0);    
+    expect(player.attributes.reduce((partialSum, a) => partialSum + a, 0) == 0);
     expect(player.xp == PLAYER_XP_INIT);
   });
 
 
-  it("Updates player attributes by player", async () => {
+  it("Updates player attributes", async () => {
     // PLayer PDAs
     const [player1Pda] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("player"), player1.publicKey.toBuffer()],
@@ -160,11 +159,11 @@ describe("castagne-backend", () => {
         user: player1.publicKey,
         player: player1Pda,
         systemProgram: anchor.web3.SystemProgram.programId,
-      })
+      } as any)
       .signers([player1])
       .rpc();
 
-    let player = await program.account.player.fetch(player1Pda)
+    let player = await program.account.player.fetch(player1Pda);
 
     expect(player.attributes[0] == 250);
     expect(player.attributes[1] == 250);
@@ -172,14 +171,12 @@ describe("castagne-backend", () => {
     expect(player.xp == 0);
   });
 
-  it("Updates player xp by admin", async () => {
+  it("Updates player xp, admin only", async () => {
     // Config PDA
-    let [_configPda, _] = anchor.web3.PublicKey.findProgramAddressSync(
+    let [configPda, _] = anchor.web3.PublicKey.findProgramAddressSync(
       [Buffer.from("config"), adminWallet.publicKey.toBuffer()],
       program.programId
     );
-
-    configPda = _configPda;
 
     // PLayer PDA
     const [player1Pda] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -196,11 +193,10 @@ describe("castagne-backend", () => {
         player: player1Pda,
         config: configPda,
         systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .signers([])
+      } as any)
       .rpc();
 
-    let player = await program.account.player.fetch(player1Pda)
+    let player = await program.account.player.fetch(player1Pda);
 
     expect(player.xp == 1000);
   });

@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-castagne_backend = "GNmXt5Lp6RXYyZKCpTBvcv5oPiEh2TzgSPiL9h43uBa3"
+castagne_backend = "DGv5FsFqJsmF5WN4sA5oa9hYp931fApi7ugRC66yEWE4"
 
 [registry]
 url = "https://api.apr.dev"
@@ -16,4 +16,5 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
-player = "ts-node scripts/player.ts"
+create-player = "ts-node scripts/create_players.ts"
+read-player = "ts-node scripts/read_players.ts"
