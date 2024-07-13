@@ -41,6 +41,7 @@ pub fn init_fight(ctx: Context<InitFight>) -> Result<()> {
     // Only owner can update fights
     let config = &ctx.accounts.config_pda;
     require!(*ctx.accounts.owner.key == config.owner, PlayerErrorCode::OnlyOwner);
+
     // Update player.fights
     ctx.accounts.player1_pda.fights.push(ctx.accounts.fight_pda.counter);
     ctx.accounts.player2_pda.fights.push(ctx.accounts.fight_pda.counter);
@@ -79,18 +80,44 @@ pub struct InitFightConfig<'info> {
     pub system_program: Program<'info, System>,
 }
 
+#[derive(Accounts)]
+pub struct CheckLevel<'info> {
+    #[account(mut)]
+    /// CHECK: This is not dangerous because we don't read or write from this account
+    pub player1: AccountInfo<'info>,
+
+    #[account(mut)]
+    /// CHECK: This is not dangerous because we don't read or write from this account
+    pub player2: AccountInfo<'info>,
+
+    #[account(
+        mut,
+        seeds = [b"player", player1.key().as_ref()],
+        bump,
+    )]
+    pub player1_pda: Account<'info, Player>,
+
+    #[account(
+        mut,
+        seeds = [b"player", player2.key().as_ref()],
+        bump,
+    )]
+    pub player2_pda: Account<'info, Player>,
+}
+
 
 #[derive(Accounts)]
+// #[instruction(id: u64)]
 pub struct InitFight<'info> {
     #[account(mut)]
     pub player1: Signer<'info>,
 
     #[account(mut)]
-        /// CHECK: This is not dangerous because we don't read or write from this account
+    /// CHECK: This is not dangerous because we don't read or write from this account
     pub player2: AccountInfo<'info>,
 
     #[account()]
-        /// CHECK: This is not dangerous because we don't read or write from this account
+    /// CHECK: This is not dangerous because we don't read or write from this account
     pub owner: AccountInfo<'info>,
 
     #[account(
@@ -99,9 +126,7 @@ pub struct InitFight<'info> {
         space = 8 + 1000,
         seeds = [
             b"fight_player",
-            player1.key().as_ref(),
-            player2.key().as_ref(),
-            &fight_pda.counter.to_le_bytes(),
+            fight_pda.counter.to_le_bytes().as_ref(),
         ],
         bump,
     )]

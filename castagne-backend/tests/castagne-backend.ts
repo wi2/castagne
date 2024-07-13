@@ -216,14 +216,15 @@ describe("castagne-backend", () => {
     expect(fight.counter.toNumber() == 0);
   })
 
+
+  // Fight
   it("Init a fight with same players and thrown error", async () => {
     let fightData = await program.account.fight.fetch(fightPda);
-    const [fightPlayerPda] = anchor.web3.PublicKey.findProgramAddressSync(
+
+    const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from("fight_player"),
-        player1.publicKey.toBuffer(),
-        player1.publicKey.toBuffer(),
-        fightData.counter.toBuffer(),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, "le", 8),
       ],
       program.programId
     );
@@ -256,12 +257,11 @@ describe("castagne-backend", () => {
 
   it("Init a fight but a player has a level too high and thrown error", async () => {
     let fightData = await program.account.fight.fetch(fightPda);
-    const [fightPlayerPda] = anchor.web3.PublicKey.findProgramAddressSync(
+
+    const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from("fight_player"),
-        player1.publicKey.toBuffer(),
-        player2.publicKey.toBuffer(),
-        fightData.counter.toBuffer(),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, "le", 8),
       ],
       program.programId
     );
@@ -316,18 +316,6 @@ describe("castagne-backend", () => {
   });
 
   it("Init a fight and succeed", async () => {
-    let fightData = await program.account.fight.fetch(fightPda);
-    console.log('fightData', fightData)
-    const [fightPlayerPda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("fight_player"),
-        player3.publicKey.toBuffer(),
-        player2.publicKey.toBuffer(),
-        fightData.counter.toBuffer(),
-      ],
-      program.programId
-    );
-
     // Allocate max xp = 1000 to attributes
     await program.methods
       .updatePlayer([150, 350, 500])
@@ -339,10 +327,15 @@ describe("castagne-backend", () => {
       .signers([player3])
       .rpc();
 
-    // let player2Data = await program.account.player.fetch(player2Pda);
-    // let player3Data = await program.account.player.fetch(player3Pda);
-    // console.log('p2', player2Data.attributes, player2Data.xp);
-    // console.log('p3', player3Data.attributes, player3Data.xp);
+    let fightData = await program.account.fight.fetch(fightPda);
+
+    const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("fight_player"),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, "le", 8),
+      ],
+      program.programId
+    );
 
     await program.methods
       .initFight()
@@ -350,11 +343,11 @@ describe("castagne-backend", () => {
         player1: player3.publicKey,
         player2: player2.publicKey,
         owner: adminWallet.publicKey,
-        fight_player_pda: fightPlayerPda,
+        fightPlayerPda: fightPlayerPda,
         player1_pda: player3Pda,
         player2_pda: player2Pda,
         fight_pda: fightPda,
-        config_pda: configPda,
+        // config_pda: configPda,
         systemProgram: anchor.web3.SystemProgram.programId,
       } as any)
       .signers([player3])
@@ -362,16 +355,13 @@ describe("castagne-backend", () => {
 
     let player2Data = await program.account.player.fetch(player2Pda);
     let player3Data = await program.account.player.fetch(player3Pda);
-    // let fightPlayerData = await program.account.fightPlayer.fetch(fightPlayerPda);
-    let fightPlayerDatas = await program.account.fightPlayer.all();
+
+    let fightPlayerData = await program.account.fightPlayer.fetch(fightPlayerPda);
 
     expect(player2Data.fights[0].toNumber() === 0);
     expect(player3Data.fights[0].toNumber() === 0);
     expect(fightData.counter.toNumber() === 1);
-    // console.log('status', fightPlayerData)
-    console.log('pda', fightPlayerPda)
-    console.log('data', fightPlayerDatas[0])
-    console.log('data', fightPlayerDatas[0].account.status)
+    expect(fightPlayerData.status.initialized)
 
   });
 });
