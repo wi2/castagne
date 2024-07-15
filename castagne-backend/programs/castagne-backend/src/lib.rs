@@ -29,4 +29,12 @@ pub mod castagne_backend {
     pub fn update_player_xp(ctx: Context<UpdatePlayerXP>, xp: u32) -> Result<()> {
         update_player_xp::update_player_xp(ctx, xp)
     }
+
+    pub fn init_fight_config(ctx: Context<InitFightConfig>) -> Result<()> {
+        init_fight::init_fight_config(ctx)
+    }
+
+    pub fn init_fight(ctx: Context<InitFight>) -> Result<()> {
+        init_fight::init_fight(ctx)
+    }
 }
