@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 pub mod constants;
 pub mod errors;
+pub mod helpers;
 pub mod instructions;
 pub mod state;
 use instructions::*;
@@ -8,7 +9,6 @@ use instructions::*;
 // Run command to get the program_id
 // solana-keygen pubkey target/deploy/castagne_backend-keypair.json
 declare_id!("DGv5FsFqJsmF5WN4sA5oa9hYp931fApi7ugRC66yEWE4");
-
 
 #[program]
 pub mod castagne_backend {
@@ -36,5 +36,9 @@ pub mod castagne_backend {
 
     pub fn init_fight(ctx: Context<InitFight>) -> Result<()> {
         init_fight::init_fight(ctx)
+    }
+
+    pub fn start_fight(ctx: Context<StartFight>) -> Result<()> {
+        start_fight::start_fight(ctx)
     }
 }

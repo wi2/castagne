@@ -16,4 +16,7 @@ pub enum FightErrorCode {
 
     #[msg("Players must be different!")]
     PlayersMustBeDifferent,
+
+    #[msg("Fight must be Initilazed!")]
+    PlayersMustBeInitilazed,
 }

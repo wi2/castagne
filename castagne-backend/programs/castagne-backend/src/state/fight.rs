@@ -16,4 +16,6 @@ pub struct Fight {
 #[account]
 pub struct FightPlayer {
     pub status: GameState,
+    pub player1: Pubkey,
+    pub player2: Pubkey,
 }

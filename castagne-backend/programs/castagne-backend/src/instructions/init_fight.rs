@@ -1,21 +1,14 @@
-use anchor_lang::prelude::*;
-use crate::state::config::Config;
-use crate::state::player::Player;
-use crate::state::fight::{Fight, FightPlayer, GameState};
 use crate::constants::FIGHT_LEVEL_LIMIT_IN_PERCENTAGE;
 use crate::errors::FightErrorCode;
-use crate::PlayerErrorCode;
+use crate::state::fight::{Fight, FightPlayer, GameState};
+use crate::state::player::Player;
+use anchor_lang::prelude::*;
 
 pub fn init_fight_config(ctx: Context<InitFightConfig>) -> Result<()> {
-    // Only owner
-    let config = &ctx.accounts.config_pda;
-    require!(*ctx.accounts.owner.key == config.owner, PlayerErrorCode::OnlyOwner);
-
     let fight = &mut ctx.accounts.fight_pda;
     fight.counter = 0;
     Ok(())
 }
-
 
 pub fn init_fight(ctx: Context<InitFight>) -> Result<()> {
     // Player 1 and 2 must be differents
@@ -38,24 +31,27 @@ pub fn init_fight(ctx: Context<InitFight>) -> Result<()> {
 
     require!(max_level <= level_limit, FightErrorCode::LevelTooHigh);
 
-    // Only owner can update fights
-    let config = &ctx.accounts.config_pda;
-    require!(*ctx.accounts.owner.key == config.owner, PlayerErrorCode::OnlyOwner);
-
     // Update player.fights
-    ctx.accounts.player1_pda.fights.push(ctx.accounts.fight_pda.counter);
-    ctx.accounts.player2_pda.fights.push(ctx.accounts.fight_pda.counter);
+    ctx.accounts
+        .player1_pda
+        .fights
+        .push(ctx.accounts.fight_pda.counter);
+    ctx.accounts
+        .player2_pda
+        .fights
+        .push(ctx.accounts.fight_pda.counter);
 
     // Update fight player status
     ctx.accounts.fight_player_pda.status = GameState::Initialized;
+    // attribute players
+    ctx.accounts.fight_player_pda.player1 = ctx.accounts.player1.key();
+    ctx.accounts.fight_player_pda.player2 = ctx.accounts.player2.key();
 
     // +1 fight.counter
     ctx.accounts.fight_pda.counter += 1;
 
     Ok(())
-
 }
-
 
 #[derive(Accounts)]
 pub struct InitFightConfig<'info> {
@@ -66,45 +62,13 @@ pub struct InitFightConfig<'info> {
         init,
         payer = owner,
         space = 8 + std::mem::size_of::<Fight>(),
-        seeds = [b"fight", owner.key().as_ref()],
+        seeds = [b"fight"],
         bump,
     )]
     pub fight_pda: Account<'info, Fight>,
 
-    #[account(
-        seeds = [b"config", owner.key().as_ref()],
-        bump,
-    )]
-    pub config_pda: Account<'info, Config>,
-
     pub system_program: Program<'info, System>,
 }
-
-#[derive(Accounts)]
-pub struct CheckLevel<'info> {
-    #[account(mut)]
-    /// CHECK: This is not dangerous because we don't read or write from this account
-    pub player1: AccountInfo<'info>,
-
-    #[account(mut)]
-    /// CHECK: This is not dangerous because we don't read or write from this account
-    pub player2: AccountInfo<'info>,
-
-    #[account(
-        mut,
-        seeds = [b"player", player1.key().as_ref()],
-        bump,
-    )]
-    pub player1_pda: Account<'info, Player>,
-
-    #[account(
-        mut,
-        seeds = [b"player", player2.key().as_ref()],
-        bump,
-    )]
-    pub player2_pda: Account<'info, Player>,
-}
-
 
 #[derive(Accounts)]
 // #[instruction(id: u64)]
@@ -115,10 +79,6 @@ pub struct InitFight<'info> {
     #[account(mut)]
     /// CHECK: This is not dangerous because we don't read or write from this account
     pub player2: AccountInfo<'info>,
-
-    #[account()]
-    /// CHECK: This is not dangerous because we don't read or write from this account
-    pub owner: AccountInfo<'info>,
 
     #[account(
         init,
@@ -148,16 +108,10 @@ pub struct InitFight<'info> {
 
     #[account(
         mut,
-        seeds = [b"fight", owner.key().as_ref()],
+        seeds = [b"fight"],
         bump,
     )]
     pub fight_pda: Account<'info, Fight>,
-
-    #[account(
-        seeds = [b"config", owner.key().as_ref()],
-        bump,
-    )]
-    pub config_pda: Account<'info, Config>,
 
     pub system_program: Program<'info, System>,
 }
