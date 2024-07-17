@@ -19,4 +19,13 @@ pub enum FightErrorCode {
 
     #[msg("Fight must be Initilazed!")]
     PlayersMustBeInitilazed,
+
+    #[msg("Player must exist in fight!")]
+    PlayerNotExistInFight,
+
+    #[msg("Player must well configured!")]
+    PlayerConfigError,
+
+    #[msg("Player must be signer!")]
+    PlayerMustBeSigner,
 }

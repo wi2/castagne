@@ -1,11 +1,24 @@
 use crate::constants::{PARTICIPATE_NB, PARTICIPATE_XP, WON_XP};
 use crate::errors::FightErrorCode;
-use crate::helpers::generate_random_number;
+use crate::helpers::{get_rounds_winner, get_winner};
 use crate::state::fight::{FightPlayer, GameState};
 use crate::state::player::Player;
 use anchor_lang::prelude::*;
 
-pub fn start_fight(ctx: Context<StartFight>) -> Result<()> {
+pub fn start_fight(ctx: Context<StartFight>, counter: u64) -> Result<()> {
+    // Player 1 and 2 must be differents
+    require!(
+        ctx.accounts.player1_pda.user != ctx.accounts.player2_pda.user,
+        FightErrorCode::PlayersMustBeDifferent
+    );
+
+    // Player must exist in fight
+    require!(
+        ctx.accounts.player1_pda.fights.contains(&counter)
+            && ctx.accounts.player2_pda.fights.contains(&counter),
+        FightErrorCode::PlayerNotExistInFight
+    );
+
     // Fight must be Initilazed
     require!(
         ctx.accounts.fight_player_pda.status == GameState::Initialized,
@@ -19,10 +32,10 @@ pub fn start_fight(ctx: Context<StartFight>) -> Result<()> {
     require!(
         ctx.accounts.fight_player_pda.player1.key() == player1.key()
             && ctx.accounts.fight_player_pda.player2.key() == player2.key(),
-        FightErrorCode::PlayersMustBeInitilazed
+        FightErrorCode::PlayerConfigError
     );
     // verify player2 is signer
-    require!(player2.is_signer, FightErrorCode::PlayersMustBeInitilazed);
+    require!(player2.is_signer, FightErrorCode::PlayerMustBeSigner);
 
     let player1_pda = &mut ctx.accounts.player1_pda;
     let player2_pda = &mut ctx.accounts.player2_pda;
@@ -39,20 +52,12 @@ pub fn start_fight(ctx: Context<StartFight>) -> Result<()> {
     }
 
     // 1 seul round pour le moment
-    let mut nb_player1_won = 0;
+    let rounds_result =
+        get_rounds_winner(player1_pda.attributes, player2_pda.attributes, &player2.key);
 
-    for index in 0..player1_pda.attributes.len() - 1 {
-        let random_value = generate_random_number(
-            &player2.key(),
-            player1_pda.attributes[index] + player2_pda.attributes[index],
-        );
-        if random_value <= player1_pda.attributes[index] {
-            nb_player1_won += 1;
-        }
-    }
-
+    let winner = get_winner(rounds_result?, player1.key(), player2.key())?;
     // Update fight player status and xp
-    if nb_player1_won >= player1_pda.attributes.len() / 2 {
+    if winner == player1.key() {
         ctx.accounts.fight_player_pda.status = GameState::Won {
             winner: player1.key(),
         };
@@ -81,7 +86,7 @@ pub struct StartFight<'info> {
         mut,
         seeds = [
             b"fight_player",
-            &counter.to_le_bytes().as_ref(),
+            &counter.to_le_bytes(),
         ],
         bump,
     )]

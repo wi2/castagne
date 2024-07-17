@@ -38,7 +38,7 @@ pub mod castagne_backend {
         init_fight::init_fight(ctx)
     }
 
-    pub fn start_fight(ctx: Context<StartFight>) -> Result<()> {
-        start_fight::start_fight(ctx)
+    pub fn start_fight(ctx: Context<StartFight>, counter: u64) -> Result<()> {
+        start_fight::start_fight(ctx, counter)
     }
 }
