@@ -1,9 +1,8 @@
 import * as anchor from '@coral-xyz/anchor';
-import { AnchorError, Program } from '@coral-xyz/anchor';
+import { Program } from '@coral-xyz/anchor';
 import { CastagneBackend } from '../../target/types/castagne_backend';
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 import { AnchorProvider } from '@coral-xyz/anchor/dist/cjs/provider';
-import { toBuffer } from '@solana/web3.js/src/utils/to-buffer';
 
 describe('start fight', () => {
   const PLAYER_XP_INIT = 1000;
@@ -69,20 +68,21 @@ describe('start fight', () => {
       .signers([player2])
       .rpc();
 
-    let players = await program.account.player.all();
     let player = await program.account.player.fetch(player1Pda);
 
-    expect(players.length === 3);
-    expect(player.user == player1.publicKey);
-    expect(player.username == userName1);
-    expect(player.attributes.length == 3);
-    expect(player.attributes.reduce((partialSum, a) => partialSum + a, 0) == 0);
-    expect(player.xp == PLAYER_XP_INIT);
-    expect(player.fights.length == 0);
+    expect(player.user.toString()).to.equal(player1.publicKey.toString());
+    expect(player.username).to.equal(userName1);
+    expect(player.attributes.length).to.equal(3);
+    expect(
+      player.attributes.reduce((partialSum, a) => partialSum + a, 0)
+    ).to.equal(0);
+    expect(player.xp).to.equal(PLAYER_XP_INIT);
+    expect(player.fights.length).to.equal(0);
   });
 
   it('Updates player attributes and succeed', async () => {
-    const attributes = [250, 250, 500];
+    const attributes = [250, 250, 0];
+    const attributes_player2 = [0, 0, 500];
     await program.methods
       .updatePlayer(attributes)
       .accounts({
@@ -94,7 +94,7 @@ describe('start fight', () => {
       .rpc();
 
     await program.methods
-      .updatePlayer(attributes)
+      .updatePlayer(attributes_player2)
       .accounts({
         user: player2.publicKey,
         player: player2Pda,
@@ -103,17 +103,16 @@ describe('start fight', () => {
       .signers([player2])
       .rpc();
 
-    let player = await program.account.player.fetch(player1Pda);
+    const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('fight_player'),
+        new anchor.BN(0).toArrayLike(Buffer, 'le', 8),
+      ],
+      program.programId
+    );
 
-    expect(player.attributes[0] == 250);
-    expect(player.attributes[1] == 250);
-    expect(player.attributes[2] == 500);
-    expect(player.xp == 0);
-  });
+    console.log('fightPlayerPda,', fightPlayerPda);
 
-  // F I G H T
-
-  /*   it('Init a fight config with owner and succedd', async () => {
     await program.methods
       .initFightConfig()
       .accounts({
@@ -122,29 +121,12 @@ describe('start fight', () => {
       } as any)
       .rpc();
 
-    let fight = await program.account.fight.fetch(fightPda);
-    expect(fight.counter.toNumber() == 1);
-  });
- */
-  it('YYYYY', async () => {
-    // Allocate max xp = 1000 to attributes
-
-    let fightData = await program.account.fight.fetch(fightPda);
-
-    const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        Buffer.from('fight_player'),
-        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 8),
-      ],
-      program.programId
-    );
-
     await program.methods
       .initFight()
       .accounts({
         player1: player1.publicKey,
         player2: player2.publicKey,
-        fightPlayerPda: fightPlayerPda,
+        fightplayer_pda: fightPlayerPda,
         player1_pda: player1Pda,
         player2_pda: player2Pda,
         fight_pda: fightPda,
@@ -153,27 +135,18 @@ describe('start fight', () => {
       .signers([player1])
       .rpc();
 
-    let player2Data = await program.account.player.fetch(player2Pda);
-
     let fightPlayerData = await program.account.fightPlayer.fetch(
       fightPlayerPda
     );
 
-    /*     console.log(player2Data);
-    console.log(fightPlayerData);
- */
-    //    expect(player2Data.fights[0].toNumber() === 0);
-    //    expect(fightData.counter.toNumber() === 1);
-    expect(fightPlayerData.status.initialized);
-
-    let counter = new anchor.BN(1);
+    let counter = new anchor.BN(0);
 
     await program.methods
       .startFight(counter)
       .accounts({
         player1: player1.publicKey,
         player2: player2.publicKey,
-        fightPlayerPda: fightPlayerPda,
+        fightplayer_pda: fightPlayerPda,
         player1_pda: player1Pda,
         player2_pda: player2Pda,
         systemProgram: anchor.web3.SystemProgram.programId,
@@ -182,8 +155,9 @@ describe('start fight', () => {
       .rpc();
 
     fightPlayerData = await program.account.fightPlayer.fetch(fightPlayerPda);
-    console.log(fightPlayerData);
 
-    expect(fightPlayerData.status.won.winner);
+    expect(player1.publicKey.toString()).to.equal(
+      fightPlayerData.status.won.winner.toString()
+    );
   });
 });

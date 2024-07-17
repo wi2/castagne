@@ -3,9 +3,8 @@ import { AnchorError, Program } from '@coral-xyz/anchor';
 import { CastagneBackend } from '../../target/types/castagne_backend';
 import { assert, expect } from 'chai';
 import { AnchorProvider } from '@coral-xyz/anchor/dist/cjs/provider';
-import { toBuffer } from '@solana/web3.js/src/utils/to-buffer';
 
-describe('castagne-backend', () => {
+describe.only('castagne-backend', () => {
   const PLAYER_XP_INIT = 1000;
   const userName1 = 'bob';
   const userName2 = 'alice';
@@ -60,7 +59,10 @@ describe('castagne-backend', () => {
       .rpc();
 
     let resultConfig = await program.account.config.fetch(configPda);
-    expect(resultConfig.owner.toString(), adminWallet.publicKey.toString());
+
+    expect(resultConfig.owner.toString()).to.equal(
+      adminWallet.publicKey.toString()
+    );
   });
 
   it('Init the config twice and thrown error', async () => {
@@ -135,13 +137,13 @@ describe('castagne-backend', () => {
     let players = await program.account.player.all();
     let player = await program.account.player.fetch(player1Pda);
 
-    expect(players.length === 3);
-    expect(player.user == player1.publicKey);
-    expect(player.username == userName1);
-    expect(player.attributes.length == 3);
+    expect(players.length).to.equal(3);
+    expect(player.user.toString()).to.equal(player1.publicKey.toString());
+    expect(player.username).to.equal(userName1);
+    expect(player.attributes.length).to.equal(3);
     expect(player.attributes.reduce((partialSum, a) => partialSum + a, 0) == 0);
-    expect(player.xp == PLAYER_XP_INIT);
-    expect(player.fights.length == 0);
+    expect(player.xp).to.equal(PLAYER_XP_INIT);
+    expect(player.fights.length).to.equal(0);
   });
 
   it('Updates player attributes and succeed', async () => {
@@ -158,10 +160,10 @@ describe('castagne-backend', () => {
 
     let player = await program.account.player.fetch(player1Pda);
 
-    expect(player.attributes[0] == 250);
-    expect(player.attributes[1] == 250);
-    expect(player.attributes[2] == 500);
-    expect(player.xp == 0);
+    expect(player.attributes[0]).to.equal(250);
+    expect(player.attributes[1]).to.equal(250);
+    expect(player.attributes[2]).to.equal(500);
+    expect(player.xp).to.equal(0);
   });
 
   it('Updates player xp by admin only and succeed', async () => {
@@ -179,30 +181,8 @@ describe('castagne-backend', () => {
 
     let player = await program.account.player.fetch(player1Pda);
 
-    expect(player.xp == 1000);
+    expect(player.xp).to.equal(2000);
   });
-
-  // F I G H T
-
-  /* it('Init a fight config with a non owner and thrown error AccountNotInitialized', async () => {
-    try {
-      await program.methods
-        .initFightConfig()
-        .accounts({
-          owner: player1.publicKey,
-          fight_pda: fightPda,
-        } as any)
-        .signers([player1])
-        .rpc();
-      expect.fail(
-        'Init a fight config with a non owner and thrown error should have failed but it succeded'
-      );
-    } catch (_err) {
-      expect(_err).to.be.instanceOf(AnchorError);
-      const err: AnchorError = _err;
-      expect(err.error.errorCode.code).to.equal('AccountNotInitialized');
-    }
-  }); */
 
   it('Init a fight config with owner and succedd', async () => {
     await program.methods
@@ -214,7 +194,7 @@ describe('castagne-backend', () => {
       .rpc();
 
     let fight = await program.account.fight.fetch(fightPda);
-    expect(fight.counter.toNumber() == 0);
+    expect(fight.counter.toNumber()).to.equal(0);
   });
 
   // Fight
@@ -355,9 +335,12 @@ describe('castagne-backend', () => {
       fightPlayerPda
     );
 
-    expect(player2Data.fights[0].toNumber() === 0);
-    expect(player3Data.fights[0].toNumber() === 0);
-    expect(fightData.counter.toNumber() === 1);
-    expect(fightPlayerData.status.initialized);
+    expect(player2Data.fights[0].toNumber()).to.equal(0);
+    expect(player3Data.fights[0].toNumber()).to.equal(0);
+
+    fightData = await program.account.fight.fetch(fightPda);
+    expect(fightData.counter.toNumber()).to.equal(1);
+
+    expect('initialized' in fightPlayerData.status).to.be.true;
   });
 });
