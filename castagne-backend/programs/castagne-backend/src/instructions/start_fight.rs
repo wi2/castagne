@@ -6,12 +6,6 @@ use crate::state::player::Player;
 use anchor_lang::prelude::*;
 
 pub fn start_fight(ctx: Context<StartFight>, counter: u64) -> Result<()> {
-    // Player 1 and 2 must be differents
-    require!(
-        ctx.accounts.player1_pda.user != ctx.accounts.player2_pda.user,
-        FightErrorCode::PlayersMustBeDifferent
-    );
-
     // Player must exist in fight
     require!(
         ctx.accounts.player1_pda.fights.contains(&counter)
