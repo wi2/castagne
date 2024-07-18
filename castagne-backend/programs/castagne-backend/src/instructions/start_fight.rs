@@ -22,15 +22,6 @@ pub fn start_fight(ctx: Context<StartFight>, counter: u64) -> Result<()> {
     let player1 = &ctx.accounts.player1;
     let player2 = &ctx.accounts.player2;
 
-    // Verify players
-    require!(
-        ctx.accounts.fight_player_pda.player1.key() == player1.key()
-            && ctx.accounts.fight_player_pda.player2.key() == player2.key(),
-        FightErrorCode::PlayerConfigError
-    );
-    // verify player2 is signer
-    require!(player2.is_signer, FightErrorCode::PlayerMustBeSigner);
-
     let player1_pda = &mut ctx.accounts.player1_pda;
     let player2_pda = &mut ctx.accounts.player2_pda;
 
