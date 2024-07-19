@@ -38,6 +38,4 @@ pub struct UpdatePlayerXP<'info> {
         bump,
     )]
     pub config: Account<'info, Config>,
-
-    pub system_program: Program<'info, System>,
 }

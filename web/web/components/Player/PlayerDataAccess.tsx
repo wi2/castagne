@@ -83,7 +83,6 @@ export const useCastagneProgramAccount = ({ account }: { account: PublicKey }) =
       .accountsStrict({
         user: account,
         player: playerPda,
-        systemProgram: SystemProgram.programId,
       })
       .rpc(),
     onSuccess: (tx) => {

@@ -90,6 +90,4 @@ pub struct StartFight<'info> {
         bump,
     )]
     pub player2_pda: Account<'info, Player>,
-
-    pub system_program: Program<'info, System>,
 }

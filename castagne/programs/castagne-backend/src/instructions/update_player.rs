@@ -38,6 +38,4 @@ pub struct UpdatePlayer<'info> {
         bump,
     )]
     pub player: Account<'info, Player>,
-
-    pub system_program: Program<'info, System>,
 }
