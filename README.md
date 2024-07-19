@@ -1,8 +1,8 @@
-# Castagne Solana Game
+# castagne
 
 Castagne is a fighting game between 2 players with random management of hitting points.
 
-#### Explanation
+## 1. Explanation
 
 A player has 3 characteristics, strength, speed and robustness for which he has allocated points.
 
@@ -15,7 +15,7 @@ Every 10 matches players receive XP points regardless of their result.
 
 XP points can be used to modify characteristics.
 
-#### Exemple
+### Exemple
 
 | Characteristic | player 1 | player 2 | Min | Max            |
 |----------------|----------|----------|-----|----------------|
@@ -27,27 +27,32 @@ Random for strengh
 | 127           | Winner   |         |
 | 251           |          | Winner  |
 
-## Tech stack
+## 2. Getting Started
 
-- Solana
-- Anchor
+### Prerequisites
 
-## 1. Installation
+- Node v18.18.0 or higher
 
-### Retrieve project from GitHub
+- Rust v1.77.2 or higher
+- Anchor CLI 0.30.0 or higher
+- Solana CLI 1.18.9 or higher
+
+### 2.1 Installation
+
+#### Retrieve project from GitHub
 
 ```bash
 git clone https://github.com/wi2/castagne
-cd castagne/castagne-backend
+cd castagne
 ```
 
-### Install dependencies
+#### Install dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
-## 2. Setup provider
+### 2.2 Setup provider
 
 Select the environment you want to deploy to.
 
@@ -56,7 +61,7 @@ Select the environment you want to deploy to.
 - testnet
 - localnet
 
-### localnet
+#### localnet
 
 Start the localnet
 
@@ -69,9 +74,41 @@ solana-test-validator
 
 # To fund your account
 solana airdrop 100
+
+# Show your account
+solana account <publicKey>
 ```
 
-## 2. Build and deploy
+## 3. App: Build and deploy
+
+```bash
+anchor build
+```
+
+Get the program id
+
+```bash
+anchor keys list
+```
+
+If the program id is different from the one set inside `lib.rs` replace the program id by the new one.
+
+file `lib.rs`
+
+```rust
+declare_id!("<new program id>");
+```
+
+file `anchor.toml`
+
+```toml
+[programs.localnet]
+castagne = "<new program id>"
+```
+
+Build and deploy
+
+You should confirm by seeing the program id deployed.
 
 ```bash
 anchor build && anchor deploy
@@ -79,8 +116,16 @@ anchor build && anchor deploy
 
 ### 3. Run Unit tests
 
+Run unit test locally
+
 ```bash
 anchor test
+```
+
+Run unit test locally with the `solana-test-validator`
+
+```bash
+anchor run test
 ```
 
 ### 4. Run some scripts
@@ -93,11 +138,21 @@ anchor run create_player
 anchor run read_player
 ```
 
-*Script are set in the Anchor.toml file*
+Script are set in the Anchor.toml file
 
 ```toml
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 create-player = "ts-node scripts/create_players.ts"
 read-player = "ts-node scripts/read_players.ts"
+```
+
+## 4. Run App
+
+```bash
+npm run dev
+
+# or
+
+npm build
 ```
