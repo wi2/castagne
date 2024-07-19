@@ -7,7 +7,10 @@ import { useMemo } from 'react';
 import { useAnchorProvider } from '../solana/solana-provider';
 import { useCluster } from '../cluster/cluster-data-access';
 import { useCustomToast, useTransactionToast } from '../ui/ui-layout';
-import { getCastagneProgram, getCastagneProgramId } from '@/context/castagne-exports';
+import {
+  getCastagneProgram,
+  getCastagneProgramId,
+} from '@/context/castagne-exports';
 
 export function useCastagneProgram() {
   const { connection } = useConnection();
@@ -37,14 +40,18 @@ export function useCastagneProgram() {
   };
 }
 
-export const useCastagneProgramAccount = ({ account }: { account: PublicKey }) => {
+export const useCastagneProgramAccount = ({
+  account,
+}: {
+  account: PublicKey;
+}) => {
   const { cluster } = useCluster();
   const { program } = useCastagneProgram();
   const transactionToast = useTransactionToast();
   const customToast = useCustomToast();
 
   const [playerPda] = PublicKey.findProgramAddressSync(
-    [Buffer.from("player"), account.toBuffer()],
+    [Buffer.from('player'), account.toBuffer()],
     program.programId
   );
 
@@ -53,54 +60,61 @@ export const useCastagneProgramAccount = ({ account }: { account: PublicKey }) =
     queryFn: () => program.account.player.fetch(playerPda),
   });
 
-
   const createPlayer = useMutation({
     mutationKey: ['player', 'create_player', { cluster, account }],
     mutationFn: (username: string) =>
-      program.methods.createPlayer(username)
-      .accountsStrict({
-        user: account,
-        player: playerPda,
-        systemProgram: SystemProgram.programId,
-      })
-      .rpc(),
+      program.methods
+        .createPlayer(username)
+        .accountsStrict({
+          user: account,
+          player: playerPda,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc(),
     onSuccess: (tx) => {
-      console.log('tx', tx)
+      console.log('tx', tx);
       transactionToast(tx);
       return playerQuery.refetch();
     },
     onError: (err) => {
-      const errorData = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+      const errorData = JSON.parse(
+        JSON.stringify(err, Object.getOwnPropertyNames(err))
+      );
 
-      if (errorData.logs.some((message: string | string[]) => message.includes('already in use'))) {
-        customToast("Player already created with this address!");
+      if (
+        errorData.logs.some((message: string | string[]) =>
+          message.includes('already in use')
+        )
+      ) {
+        customToast('Player already created with this address!');
       }
-    }
+    },
   });
 
   const updatePlayer = useMutation({
     mutationKey: ['player', 'update_player', { cluster, account }],
     mutationFn: (attributes: number[]) =>
-      program.methods.updatePlayer(attributes)
-      .accountsStrict({
-        user: account,
-        player: playerPda,
-      })
-      .rpc(),
+      program.methods
+        .updatePlayer(attributes)
+        .accountsStrict({
+          user: account,
+          player: playerPda,
+        })
+        .rpc(),
     onSuccess: (tx) => {
-      console.error('tx', tx)
+      console.error('tx', tx);
       transactionToast(tx);
       return playerQuery.refetch();
     },
     onError: (err) => {
       customToast(err.message);
-      console.error('err', err)
-    }
+      console.error('err', err);
+    },
   });
 
   return {
     createPlayer,
     updatePlayer,
     playerQuery,
-  }
-}
+  };
+};
