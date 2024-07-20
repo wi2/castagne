@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { WalletButton } from '../solana/solana-provider';
 import { useCastagneProgramAccount } from '../Player/PlayerDataAccess';
 import { PublicKey } from '@solana/web3.js';
 import { Input } from '../ui-elements/Input';

@@ -7,9 +7,7 @@ import { useMemo } from 'react';
 import { useAnchorProvider } from '../solana/solana-provider';
 import { useCluster } from '../cluster/cluster-data-access';
 import { useCustomToast, useTransactionToast } from '../ui/ui-layout';
-import { Castagne, getCastagneProgram, getCastagneProgramId } from '@/context/castagne-exports';
-import { Program } from '@coral-xyz/anchor';
-
+import { getCastagneProgram, getCastagneProgramId } from '@/context/castagne-exports';
 
 export function useCastagneProgram() {
   const { connection } = useConnection();
