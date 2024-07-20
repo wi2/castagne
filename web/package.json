@@ -5,7 +5,8 @@
   "scripts": {
     "build": "nx build web",
     "start": "nx run web:serve:production",
-    "dev": "nx serve web"
+    "dev": "nx serve web",
+    "decode-keypair": "tsx decodeKeypair.ts"
   },
   "private": true,
   "dependencies": {
