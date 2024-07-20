@@ -115,21 +115,21 @@ describe.only('player - create & update', () => {
     expect(player.xp).to.equal(0);
   });
 
-  // it('Updates player xp by admin only and succeed', async () => {
-  //   const xp = 2000;
-  //   await config.program.methods
-  //     .updatePlayerXp(xp)
-  //     .accounts({
-  //       owner: config.adminWallet.publicKey,
-  //       user: config.player1.publicKey,
-  //       player: config.player1Pda,
-  //       config: config.configPda,
-  //       systemProgram: anchor.web3.SystemProgram.programId,
-  //     } as any)
-  //     .rpc();
+  it('Updates player xp by admin only and succeed', async () => {
+    const xp = 2000;
+    await config.program.methods
+      .updatePlayerXp(xp)
+      .accounts({
+        owner: config.adminWallet.publicKey,
+        user: config.player1.publicKey,
+        player: config.player1Pda,
+        config: config.configPda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      } as any)
+      .rpc();
 
-  //   let player = await config.program.account.player.fetch(config.player1Pda);
+    let player = await config.program.account.player.fetch(config.player1Pda);
 
-  //   expect(player.xp).to.equal(2000);
-  // });
+    expect(player.xp).to.equal(2000);
+  });
 });
