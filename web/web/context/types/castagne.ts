@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/castagne.json`.
  */
 export type Castagne = {
-  "address": "FvH7Ae6WLxKkb1dt9LZQCSLRhFsiSVvRoj6JR764wt9u",
+  "address": "HVmA4wiTwZHAtZvWgMqAmCLwUtXAPwa5ff9KjVvSwr8v",
   "metadata": {
     "name": "castagne",
     "version": "0.1.0",
@@ -572,33 +572,13 @@ export type Castagne = {
   "errors": [
     {
       "code": 6000,
-      "name": "levelTooHigh",
-      "msg": "Level too high!"
+      "name": "notEnoughXp",
+      "msg": "Not enough xp"
     },
     {
       "code": 6001,
-      "name": "playersMustBeDifferent",
-      "msg": "Players must be different!"
-    },
-    {
-      "code": 6002,
-      "name": "playersMustBeInitilazed",
-      "msg": "Fight must be Initilazed!"
-    },
-    {
-      "code": 6003,
-      "name": "playerNotExistInFight",
-      "msg": "Player must exist in fight!"
-    },
-    {
-      "code": 6004,
-      "name": "playerConfigError",
-      "msg": "Player must well configured!"
-    },
-    {
-      "code": 6005,
-      "name": "playerMustBeSigner",
-      "msg": "Player must be signer!"
+      "name": "onlyOwner",
+      "msg": "Only owner!"
     }
   ],
   "types": [
