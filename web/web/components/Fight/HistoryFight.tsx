@@ -1,27 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 
 import { useFight } from '@/components/hooks/useFight';
 import { PublicKey } from '@solana/web3.js';
 
 import { useCastagneProgram } from '../Player/PlayerDataAccess';
-import { BN } from '@coral-xyz/anchor';
-
-interface IInitFightForm {
-  player1: PublicKey;
-  player2: PublicKey;
-  fightPlayerPda: PublicKey;
-  player1Pda: PublicKey;
-  player2Pda: PublicKey;
-}
 
 const HistoryFights = ({ account }: { account: PublicKey }) => {
-  const { fightsQuery, initFight, startFight, fightCounter, program } =
-    useFight({
-      account,
-    });
-  const [formData, setFormData] = useState<IInitFightForm | null>();
+  const { fightsQuery } = useFight({
+    account,
+  });
+
   const { players } = useCastagneProgram();
 
   return (
@@ -34,16 +24,16 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
         {fightsQuery.data
           ?.filter(
             (f) =>
-              f.account.player2.toString() === account.toString() &&
+              (f.account.player2.toString() === account.toString() ||
+                f.account.player1.toString() === account.toString()) &&
               !f.account.status.initialized
           )
-          .map((fight, index) => (
+          .map((fight) => (
             <div
               key={fight.publicKey.toString()}
               className="text-sm border-b border-slate-700/60"
             >
               <div className="grid grid-cols-3">
-                <div className="col-span-3 text-teal-500">{index}</div>
                 <div>player 1</div>
                 <div className="col-span-2 text-teal-500">
                   {
@@ -53,7 +43,6 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
                         fight.account.player1.toString()
                     )?.account.username
                   }
-                  <small> - {fight.account.player1.toString()}</small>
                 </div>
 
                 <div>player 2</div>
@@ -65,7 +54,6 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
                         fight.account.player2.toString()
                     )?.account.username
                   }
-                  <small> - {fight.account.player2.toString()}</small>
                 </div>
 
                 <div>status</div>

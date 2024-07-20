@@ -1,11 +1,13 @@
 'use client';
 
 import AcceptFight from '@/components/Fight/AcceptFight';
-import { useWallet } from '@solana/wallet-adapter-react';
+import useGetParamAddress from '@/components/hooks/useGetParamAddress';
 import React from 'react';
 
 const Page = () => {
-  const { publicKey } = useWallet();
+  const { publicKey, error } = useGetParamAddress();
+
+  if (error) return <div>error</div>;
 
   if (!publicKey) return null;
 
