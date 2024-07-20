@@ -1,5 +1,5 @@
 {
-  "address": "FvH7Ae6WLxKkb1dt9LZQCSLRhFsiSVvRoj6JR764wt9u",
+  "address": "HVmA4wiTwZHAtZvWgMqAmCLwUtXAPwa5ff9KjVvSwr8v",
   "metadata": {
     "name": "castagne",
     "version": "0.1.0",
@@ -566,33 +566,13 @@
   "errors": [
     {
       "code": 6000,
-      "name": "LevelTooHigh",
-      "msg": "Level too high!"
+      "name": "NotEnoughXP",
+      "msg": "Not enough xp"
     },
     {
       "code": 6001,
-      "name": "PlayersMustBeDifferent",
-      "msg": "Players must be different!"
-    },
-    {
-      "code": 6002,
-      "name": "PlayersMustBeInitilazed",
-      "msg": "Fight must be Initilazed!"
-    },
-    {
-      "code": 6003,
-      "name": "PlayerNotExistInFight",
-      "msg": "Player must exist in fight!"
-    },
-    {
-      "code": 6004,
-      "name": "PlayerConfigError",
-      "msg": "Player must well configured!"
-    },
-    {
-      "code": 6005,
-      "name": "PlayerMustBeSigner",
-      "msg": "Player must be signer!"
+      "name": "OnlyOwner",
+      "msg": "Only owner!"
     }
   ],
   "types": [
