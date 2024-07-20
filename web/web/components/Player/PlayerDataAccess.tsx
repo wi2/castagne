@@ -9,7 +9,6 @@ import { useCluster } from '../cluster/cluster-data-access';
 import { useCustomToast, useTransactionToast } from '../ui/ui-layout';
 import { getCastagneProgram, getCastagneProgramId } from '@/context/castagne-exports';
 
-
 export function useCastagneProgram() {
   const { connection } = useConnection();
   const { cluster } = useCluster();
@@ -71,8 +70,11 @@ export const useCastagneProgramAccount = ({ account }: { account: PublicKey }) =
       return playerQuery.refetch();
     },
     onError: (err) => {
-      customToast(err.message);
-      console.log('err', err)
+      const errorData = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+
+      if (errorData.logs.some((message: string | string[]) => message.includes('already in use'))) {
+        customToast("Player already created with this address!");
+      }
     }
   });
 

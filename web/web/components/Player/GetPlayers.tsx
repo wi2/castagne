@@ -22,7 +22,7 @@ const GetPlayers = () => {
               <div className='text-teal-500'>{player.account.username}</div>
 
               <div>Key</div>
-              <div className='text-teal-500'>{player.account.user.toString()}</div>
+              <div className='text-teal-500 truncate max-w-xs'>{player.account.user.toString()}</div>
           </div>
 
           <h2 className='font-bold'>Attributes</h2>
