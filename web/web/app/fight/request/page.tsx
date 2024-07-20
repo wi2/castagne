@@ -1,6 +1,6 @@
 'use client';
 
-import ListFights from '@/components/Fight/ListFight';
+import RequestFight from '@/components/Fight/RequestFight';
 import { useWallet } from '@solana/wallet-adapter-react';
 import React from 'react';
 
@@ -9,7 +9,7 @@ const Page = () => {
 
   if (!publicKey) return null;
 
-  return <ListFights account={publicKey} />;
+  return <RequestFight account={publicKey} />;
 };
 
 export default Page;

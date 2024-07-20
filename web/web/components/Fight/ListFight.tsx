@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-import { useFight } from '@/app/hooks/useFight';
+import { useFight } from '@/components/hooks/useFight';
 import { PublicKey } from '@solana/web3.js';
 
 import { Input } from '../ui-elements/Input';
