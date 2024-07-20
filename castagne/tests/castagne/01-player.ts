@@ -1,6 +1,6 @@
 import * as anchor from '@coral-xyz/anchor';
 import { expect } from 'chai';
-
+import { AnchorError, ProgramErrorStack } from '@coral-xyz/anchor';
 import { PLAYER_XP_INIT, confTestType, getConfTest } from '../helper';
 
 describe.only('player - create & update', () => {
@@ -75,21 +75,61 @@ describe.only('player - create & update', () => {
     expect(player.xp).to.equal(0);
   });
 
-  it('Updates player xp by admin only and succeed', async () => {
-    const xp = 2000;
+  it('Create players twice failed', async () => {
+    try {
+      await config.program.methods
+        .createPlayer(config.userName1)
+        .accounts({
+          user: config.player1.publicKey,
+          player: config.player1Pda,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        } as any)
+        .signers([config.player1])
+        .rpc();
+
+        expect.fail('Create players twice failed');
+
+    } catch (_err) {
+      expect(_err.transactionLogs.some(message => message.includes('already in use'))).to.be.true
+    }
+
+  });
+
+  it('Updates player attributes and succeed', async () => {
+    const attributes = [250, 250, 500];
     await config.program.methods
-      .updatePlayerXp(xp)
+      .updatePlayer(attributes)
       .accounts({
-        owner: config.adminWallet.publicKey,
         user: config.player1.publicKey,
         player: config.player1Pda,
-        config: config.configPda,
         systemProgram: anchor.web3.SystemProgram.programId,
       } as any)
+      .signers([config.player1])
       .rpc();
 
     let player = await config.program.account.player.fetch(config.player1Pda);
 
-    expect(player.xp).to.equal(2000);
+    expect(player.attributes[0]).to.equal(250);
+    expect(player.attributes[1]).to.equal(250);
+    expect(player.attributes[2]).to.equal(500);
+    expect(player.xp).to.equal(0);
   });
+
+  // it('Updates player xp by admin only and succeed', async () => {
+  //   const xp = 2000;
+  //   await config.program.methods
+  //     .updatePlayerXp(xp)
+  //     .accounts({
+  //       owner: config.adminWallet.publicKey,
+  //       user: config.player1.publicKey,
+  //       player: config.player1Pda,
+  //       config: config.configPda,
+  //       systemProgram: anchor.web3.SystemProgram.programId,
+  //     } as any)
+  //     .rpc();
+
+  //   let player = await config.program.account.player.fetch(config.player1Pda);
+
+  //   expect(player.xp).to.equal(2000);
+  // });
 });

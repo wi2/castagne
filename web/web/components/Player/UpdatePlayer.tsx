@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
-import { WalletButton } from '../solana/solana-provider';
+import React, { useEffect, useState } from 'react'
 import { useCastagneProgramAccount } from './PlayerDataAccess';
 import { PublicKey } from '@solana/web3.js';
 import { Button } from '../ui-elements/Button';
 import { Input } from '../ui-elements/Input';
+import Link from 'next/link';
+import Chevron from '@/assets/svg/chevron';
 
 
 interface IUpdatePlayerForm {
@@ -18,6 +19,7 @@ interface IUpdatePlayerForm {
 
 const UpdatePlayer = ({ account }: { account: PublicKey }) => {
   const { updatePlayer, playerQuery } = useCastagneProgramAccount({ account });
+  const [xp, setXp] = useState(0)
   const [formData, setFormData] = useState<IUpdatePlayerForm>({
     address: account,
     speed: 0,
@@ -28,6 +30,7 @@ const UpdatePlayer = ({ account }: { account: PublicKey }) => {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
+
     setFormData({ ...formData, [name]: value });
   };
 
@@ -41,52 +44,73 @@ const UpdatePlayer = ({ account }: { account: PublicKey }) => {
     ]);
   }
 
-  return account ? (
+  useEffect(() => {
+    const points = Number(formData.speed) + Number(formData.strength) + Number(formData.robustness)
+    setXp(Number(playerQuery.data?.xp) - points)
+
+  }, [formData.speed, formData.strength, formData.robustness])
+
+  useEffect(() => {
+    if (playerQuery.data) {
+      setXp(playerQuery.data.xp || 0);
+      setFormData({
+        address: account,
+        speed: playerQuery.data.attributes[0] || 0,
+        strength: playerQuery.data.attributes[1] || 0,
+        robustness: playerQuery.data.attributes[2] || 0,
+      });
+    }
+  }, [playerQuery.data, account]);
+
+
+  return account && (
     <div>
+      <h1 className='text-4xl font-semibold text-center mt-4 gradient-text'>{playerQuery.data?.username}</h1>
+
+      <div className='-ml-4 -mt-12 lg:-ml-0 flex'>
+        <Chevron />
+        <Link href={`/player/${account.toString()}`} className='hover:text-indigo-400'>Back</Link>
+      </div>
+
       <form onSubmit={handleSubmit}>
-        <div className={`relative flex flex-col w-[24rem]
-          border dark:border-slate-700 border-slate-300 rounded-lg p-6`}>
-            <h1 className={`font-semibold`}>Update player</h1>
-            <p className='text-sm mt-3'>Update attributes player</p>
-            <p>XP available : <span className='text-teal-500'>{playerQuery.data?.xp}</span></p>
+        <div className={`mt-8 flex flex-col lg:p-6 lg:w-[32rem] lg:-border dark:border-slate-700 border-slate-300 rounded-lg`}>
 
-            <Input props={{
-                id: "speed", name: "speed",
-                label: `Speed ${playerQuery.data?.attributes[0]}`,
-                placeHolder: playerQuery.data?.attributes[0].toString(),
-                value: formData.speed.toString(), onChange: handleChange, required: true,
-                classes: { box: `mt-6`, input: `mt-2` }
-            }} />
+            <h2 className={`text-2xl font-semibold text-center mt-2`}>Edit attributes</h2>
+            <h3 className={`text-2xl font-semibold text-center mt-2`}>XP <span className={`${xp && xp < 0 ? 'text-pink-600' : 'text-teal-300'}`}>{xp || 0}</span></h3>
 
-            <Input props={{
-                id: "strength", name: "strength", placeHolder: playerQuery.data?.attributes[1].toString(),
-                label: `Strength ${playerQuery.data?.attributes[1]}`,
-                value: formData.strength.toString(), onChange: handleChange, required: true,
-                classes: { box: `mt-6`, input: `mt-2` }
-            }} />
+            <div className='text-center'>
+              <Input props={{
+                  id: "speed", name: "speed",
+                  placeHolder: formData.speed.toString(),
+                  label: 'Speed',
+                  value: formData.speed.toString(), onChange: handleChange, required: true,
+                  classes: { box: `mt-4 lg:mt-6`, input: `mt-2 lg:mt-2 lg:p-2 text-xl lg:text-2xl text-center`}
+              }} />
 
-            <Input props={{
-                id: "robustness", name: "robustness", placeHolder: playerQuery.data?.attributes[2].toString(),
-                label: `Robustness ${playerQuery.data?.attributes[2]}`,
-                value: formData.robustness.toString(), onChange: handleChange, required: true,
-                classes: { box: `mt-6`, input: `mt-2` }
-            }} />
+              <Input props={{
+                  id: "strength", name: "strength",
+                  placeHolder: formData.strength.toString(),
+                  label: 'Strength',
+                  value: formData.strength.toString(), onChange: handleChange, required: true,
+                  classes: { box: `mt-2 lg:mt-6`, input: `mt-2 lg:p-2 text-xl lg:text-2xl text-center` }
+              }} />
 
-            <div className="mt-8 relative flex font-normal text-sm gap-4 justify-end">
+              <Input props={{
+                  id: "robustness", name: "robustness",
+                  placeHolder: formData.robustness.toString(),
+                  label: 'Robustness',
+                  value: formData.robustness.toString(), onChange: handleChange, required: true,
+                  classes: { box: `mt-2 lg:mt-6`, input: `mt-2 lg:p-2 text-xl lg:text-2xl text-center` }
+              }} />
+            </div>
+
+            <div className="mt-4 relative flex font-normal text-2xl lg:text-4xl lg:hover:text-lime-400 gap-4 justify-center">
               <Button props={{}}>Update</Button>
             </div>
         </div>
       </form>
     </div>
-  ) : (
-    <div className="max-w-4xl mx-auto">
-      <div className="hero py-[64px]">
-        <div className="hero-content text-center">
-          <WalletButton />
-        </div>
-      </div>
-    </div>
-  );
+  )
 }
 
 export default UpdatePlayer

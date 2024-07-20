@@ -20,12 +20,14 @@ export default function AccountDetailFeature() {
     if (!params.address) {
       return;
     }
+
     try {
       return new PublicKey(params.address);
     } catch (e) {
       console.log(`Invalid public key`, e);
     }
   }, [params]);
+
   if (!address) {
     return <div>Error loading account</div>;
   }
@@ -47,6 +49,7 @@ export default function AccountDetailFeature() {
           <AccountButtons address={address} />
         </div>
       </AppHero>
+
       <div className="space-y-8">
         <AccountTokens address={address} />
         <AccountTransactions address={address} />
