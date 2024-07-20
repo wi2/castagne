@@ -4,15 +4,14 @@ import React from 'react';
 
 import { useFight } from '@/components/hooks/useFight';
 import { PublicKey } from '@solana/web3.js';
-
-import { useCastagneProgram } from '../Player/PlayerDataAccess';
+import usePlayers from '../hooks/usePlayers';
 
 const RequestFight = ({ account }: { account: PublicKey }) => {
   const { initFight, fightCounter, program } = useFight({
     account,
   });
 
-  const { players } = useCastagneProgram();
+  const players = usePlayers();
 
   const selectPlayer = (value: string) => {
     const player2Pda = players.data?.find(

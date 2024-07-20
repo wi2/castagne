@@ -5,15 +5,25 @@ import React from 'react';
 import { useFight } from '@/components/hooks/useFight';
 import { PublicKey } from '@solana/web3.js';
 
-import { useCastagneProgram } from '../Player/PlayerDataAccess';
 import { BN } from '@coral-xyz/anchor';
+import { useFetchFightPlayerByIds } from '../hooks/useFetchMultiple';
+import usePlayers from '../hooks/usePlayers';
 
 const AcceptFight = ({ account }: { account: PublicKey }) => {
-  const { fightsQuery, startFight, program } = useFight({
+  const { startFight, program } = useFight({
     account,
   });
 
-  const { players } = useCastagneProgram();
+  const players = usePlayers();
+
+  const playerFights =
+    players.data?.find(
+      (player) => player.account.user.toString() === account.toString()
+    )?.account.fights || [];
+
+  const { fights } = useFetchFightPlayerByIds({
+    indexes: playerFights,
+  });
 
   const getFightPlayerPda = (counter: number) => {
     const [fightPlayerPda] = PublicKey.findProgramAddressSync(
@@ -27,7 +37,7 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
   };
 
   const acceptFight = (fightPlayer: any) => {
-    if (fightsQuery.data) {
+    if (fights.length) {
       let counter = 0;
       let fightPlayerPda = getFightPlayerPda(counter);
       while (fightPlayerPda.toString() !== fightPlayer.publicKey.toString()) {
@@ -68,15 +78,15 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
       </h1>
 
       <div className="grid md:grid-cols-1 gap-4 text-sm">
-        {fightsQuery.data
+        {fights
           ?.filter(
             (f) =>
-              f.account.player2.toString() === account.toString() &&
-              f.account.status.initialized
+              f?.player2.toString() === account.toString() &&
+              f?.status.initialized
           )
           .map((fight, index) => (
             <div
-              key={fight.publicKey.toString()}
+              key={`fight-${index}`}
               className="text-sm border-b border-slate-700/60"
             >
               <div className="grid grid-cols-3">
@@ -85,7 +95,7 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
                     players.data?.find(
                       (player) =>
                         player.account.user.toString() ===
-                        fight.account.player1.toString()
+                        fight?.player1.toString()
                     )?.account.username
                   }{' '}
                   vs{' '}
@@ -93,13 +103,13 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
                     players.data?.find(
                       (player) =>
                         player.account.user.toString() ===
-                        fight.account.player2.toString()
+                        fight?.player2.toString()
                     )?.account.username
                   }
                 </div>
 
-                {fight.account.status.initialized &&
-                  fight.account.player2.toString() === account.toString() && (
+                {fight?.status.initialized &&
+                  fight?.player2.toString() === account.toString() && (
                     <button
                       onClick={() => {
                         acceptFight(fight);
