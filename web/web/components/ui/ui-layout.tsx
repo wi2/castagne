@@ -219,7 +219,7 @@ export function useCustomToast() {
       </div>
     ), {
       position: 'bottom-center',
-      duration: 20000,
+      duration: 2000,
     });
   };
 }
