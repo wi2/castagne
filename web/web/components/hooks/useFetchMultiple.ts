@@ -29,5 +29,6 @@ export const useFetchFightPlayerByIds = ({
   return {
     program,
     fights: fightsQuery.data || [],
+    refetch: fightsQuery.refetch,
   };
 };

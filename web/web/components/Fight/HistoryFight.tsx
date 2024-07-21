@@ -6,6 +6,7 @@ import { PublicKey } from '@solana/web3.js';
 
 import usePlayers from '../hooks/usePlayers';
 import { useFetchFightPlayerByIds } from '../hooks/useFetchMultiple';
+import Back from '../back/back';
 
 const HistoryFights = ({ account }: { account: PublicKey }) => {
   const players = usePlayers();
@@ -21,6 +22,7 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
 
   return (
     <div>
+      <Back url={`/player/${account.toString()}`} />
       <h1 className="my-2 border-b border-slate-600 text-lg text-pink-600">
         History
       </h1>
@@ -33,52 +35,75 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
                 f?.player1.toString() === account.toString()) &&
               !f?.status.initialized
           )
-          .map((fight, index) => (
-            <div
-              key={`fights-history-${index}`}
-              className="text-sm border-b border-slate-700/60"
-            >
-              <div className="grid grid-cols-3">
-                <div>player 1</div>
-                <div className="col-span-2 text-teal-500">
-                  {
-                    players.data?.find(
-                      (player) =>
-                        player.account.user.toString() ===
-                        fight?.player1.toString()
-                    )?.account.username
-                  }
-                </div>
+          .map((fight, index) => {
+            const player1 = players.data?.find(
+              (player) =>
+                player.account.user.toString() === fight?.player1.toString()
+            );
 
-                <div>player 2</div>
-                <div className="col-span-2 text-teal-500">
-                  {
-                    players.data?.find(
-                      (player) =>
-                        player.account.user.toString() ===
-                        fight?.player2.toString()
-                    )?.account.username
-                  }
-                </div>
+            const player2 = players.data?.find(
+              (player) =>
+                player.account.user.toString() === fight?.player2.toString()
+            );
 
-                <div>status</div>
-                <div className="text-teal-500">
-                  {String(
-                    (fight?.status.initialized && 'initialized') ||
-                      (fight?.status.won?.winner.toString() ===
-                        fight?.player1.toString() &&
-                        'player1 won') ||
-                      (fight?.status.won?.winner.toString() ===
-                        fight?.player2.toString() &&
-                        'player2 won')
-                  )}
-                </div>
+            return (
+              <div
+                key={`fights-history-${index}`}
+                className="text-sm border-b border-slate-700/60"
+              >
+                <div className="grid grid-cols-3">
+                  <div>Player 1</div>
+                  <div className="col-span-2 text-gray-500">
+                    {
+                      players.data?.find(
+                        (player) =>
+                          player.account.user.toString() ===
+                          fight?.player1.toString()
+                      )?.account.username
+                    }
+                  </div>
 
-                <div>rounds</div>
-                <div className="text-teal-500">{fight?.rounds.toString()}</div>
+                  <div>Player 2</div>
+                  <div className="col-span-2 text-gray-500">
+                    {
+                      players.data?.find(
+                        (player) =>
+                          player.account.user.toString() ===
+                          fight?.player2.toString()
+                      )?.account.username
+                    }
+                  </div>
+
+                  <div className="text-teal-500">Winner</div>
+                  <div className="text-teal-500">
+                    {String(
+                      (fight?.status.initialized && 'initialized') ||
+                        (fight?.status.won?.winner.toString() ===
+                          fight?.player1.toString() &&
+                          player1?.account.username) ||
+                        (fight?.status.won?.winner.toString() ===
+                          fight?.player2.toString() &&
+                          player2?.account.username)
+                    )}
+                  </div>
+
+                  <div className="grid text-gray-500">
+                    {fight?.rounds.map((round, index) =>
+                      round ? (
+                        <small key={'round' + index}>
+                          Round {index} won by {player1?.account.username}
+                        </small>
+                      ) : (
+                        <small key={'round' + index}>
+                          Round {index} won by {player2?.account.username}
+                        </small>
+                      )
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
       </div>
     </div>
   );

@@ -6,13 +6,14 @@ import { useFight } from '@/components/hooks/useFight';
 import { PublicKey } from '@solana/web3.js';
 import usePlayers from '../hooks/usePlayers';
 import { BN } from '@coral-xyz/anchor';
+import Back from '../back/back';
 
 const RequestFight = ({ account }: { account: PublicKey }) => {
+  const players = usePlayers();
+
   const { initFight, fightCounter, program } = useFight({
     account,
   });
-
-  const players = usePlayers();
 
   const selectPlayer = (value: string) => {
     const player2Pda = players.data?.find(
@@ -46,6 +47,7 @@ const RequestFight = ({ account }: { account: PublicKey }) => {
 
   return (
     <div>
+      <Back url={`/player/${account.toString()}`} />
       <h1 className="my-2 border-b border-slate-600 text-lg text-pink-600">
         Request a fight
       </h1>
