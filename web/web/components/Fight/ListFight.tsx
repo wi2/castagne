@@ -41,7 +41,7 @@ const ListFights = ({ account }: { account: PublicKey }) => {
         const [fightPlayerPda] = PublicKey.findProgramAddressSync(
           [
             Buffer.from('fight_player'),
-            fightCounter.data?.counter.toArrayLike(Buffer, 'le', 8),
+            new BN(fightCounter.data?.counter).toArrayLike(Buffer, 'le', 2),
           ],
           program.programId
         );
@@ -72,12 +72,11 @@ const ListFights = ({ account }: { account: PublicKey }) => {
         const [fightPlayerPda] = PublicKey.findProgramAddressSync(
           [
             Buffer.from('fight_player'),
-            fightCounter.data?.counter.toArrayLike(Buffer, 'le', 8),
+            new BN(fightCounter.data?.counter).toArrayLike(Buffer, 'le', 2),
           ],
           program.programId
         );
-        console.log(player1Pda.account.username);
-        console.log(player2Pda.account.username);
+
         initFight.mutateAsync({
           player1: account,
           player2: player2Pda.account.user,
@@ -91,7 +90,6 @@ const ListFights = ({ account }: { account: PublicKey }) => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(players, formData);
     if (formData) initFight.mutateAsync(formData);
     setFormData(null);
   };
@@ -100,7 +98,7 @@ const ListFights = ({ account }: { account: PublicKey }) => {
     const [fightPlayerPda] = PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new BN(counter).toArrayLike(Buffer, 'le', 8),
+        new BN(counter).toArrayLike(Buffer, 'le', 2),
       ],
       program.programId
     );
@@ -114,18 +112,9 @@ const ListFights = ({ account }: { account: PublicKey }) => {
       while (fightPlayerPda.toString() !== fightPlayer.publicKey.toString()) {
         counter++;
         fightPlayerPda = getFightPlayerPda(counter);
-        console.log(fightPlayerPda);
       }
 
       if (fightPlayer) {
-        console.log(
-          counter,
-          account.toString(),
-          fightPlayer.publicKey.toString(),
-          fightPlayer,
-          fightPlayer.account.player1.toString(),
-          fightPlayer.account.player2.toString()
-        );
         const player1Pda = players.data?.find(
           (player) =>
             player.account.user.toString() ===
@@ -139,7 +128,7 @@ const ListFights = ({ account }: { account: PublicKey }) => {
 
         if (player1Pda && player2Pda)
           startFight.mutateAsync({
-            counter: new BN(counter),
+            counter,
             player1: fightPlayer.account.player1.toString(),
             player2: fightPlayer.account.player2.toString(),
             player1Pda: player1Pda.publicKey,
@@ -214,7 +203,9 @@ const ListFights = ({ account }: { account: PublicKey }) => {
             className="text-sm border-b border-slate-700/60"
           >
             <div className="grid grid-cols-3">
-              <div className="col-span-3 text-teal-500">{index}</div>
+              <div className="col-span-3 text-teal-500">
+                {fight.account.counter} - {fight.publicKey.toString()}
+              </div>
               <div>player 1</div>
               <div className="col-span-2 text-teal-500">
                 {

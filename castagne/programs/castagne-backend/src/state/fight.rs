@@ -10,12 +10,14 @@ pub enum GameState {
 
 #[account]
 pub struct Fight {
-    pub counter: u64,
+    pub counter: u16,
 }
 
 #[account]
 pub struct FightPlayer {
+    pub counter: u16,
     pub status: GameState,
     pub player1: Pubkey,
     pub player2: Pubkey,
+    pub rounds: Vec<bool>,
 }

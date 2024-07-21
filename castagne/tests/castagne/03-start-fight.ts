@@ -14,12 +14,12 @@ describe.only('start fight', () => {
     const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new anchor.BN(0).toArrayLike(Buffer, 'le', 8),
+        new anchor.BN(0).toArrayLike(Buffer, 'le', 2),
       ],
       config.program.programId
     );
 
-    let counter = new anchor.BN(0);
+    let counter = 0;
 
     await config.program.methods
       .updatePlayer([500, 500, 0])
@@ -58,8 +58,11 @@ describe.only('start fight', () => {
       fightPlayerPda
     );
 
-    expect(config.player2.publicKey.toString()).to.equal(
-      fightPlayerData.status.won.winner.toString()
+    expect(fightPlayerData.rounds[0]).to.be.false;
+    expect(fightPlayerData.rounds[1]).to.be.false;
+    expect(fightPlayerData.rounds[2]).to.be.false;
+    expect(fightPlayerData.status.won.winner.toString()).to.equal(
+      config.player2.publicKey.toString()
     );
   });
 
@@ -70,14 +73,14 @@ describe.only('start fight', () => {
     const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 8),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 2),
       ],
       config.program.programId
     );
 
     try {
       await config.program.methods
-        .startFight(new anchor.BN(0))
+        .startFight(0)
         .accounts({
           player1: config.player3.publicKey,
           player2: config.player2.publicKey,
@@ -104,7 +107,7 @@ describe.only('start fight', () => {
     let [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 8),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 2),
       ],
       config.program.programId
     );
@@ -125,7 +128,7 @@ describe.only('start fight', () => {
 
     try {
       await config.program.methods
-        .startFight(new anchor.BN(1))
+        .startFight(1)
         .accounts({
           player1: config.player1.publicKey,
           player2: config.player2.publicKey,
@@ -153,14 +156,14 @@ describe.only('start fight', () => {
     let [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 8),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 2),
       ],
       config.program.programId
     );
 
     try {
       await config.program.methods
-        .startFight(new anchor.BN(1))
+        .startFight(1)
         .accounts({
           player1: config.player3.publicKey,
           player2: config.player1.publicKey,
@@ -188,14 +191,14 @@ describe.only('start fight', () => {
     let [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 8),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 2),
       ],
       config.program.programId
     );
 
     try {
       await config.program.methods
-        .startFight(new anchor.BN(1))
+        .startFight(1)
         .accounts({
           player1: config.player3.publicKey,
           player2: config.player1.publicKey,

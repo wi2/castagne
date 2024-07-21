@@ -5,21 +5,31 @@ import React from 'react';
 import { useFight } from '@/components/hooks/useFight';
 import { PublicKey } from '@solana/web3.js';
 
-import { useCastagneProgram } from '../Player/PlayerDataAccess';
 import { BN } from '@coral-xyz/anchor';
+import { useFetchFightPlayerByIds } from '../hooks/useFetchMultiple';
+import usePlayers from '../hooks/usePlayers';
 
 const AcceptFight = ({ account }: { account: PublicKey }) => {
-  const { fightsQuery, startFight, program } = useFight({
+  const { startFight, program } = useFight({
     account,
   });
 
-  const { players } = useCastagneProgram();
+  const players = usePlayers();
+
+  const playerFights =
+    players.data?.find(
+      (player) => player.account.user.toString() === account.toString()
+    )?.account.fights || [];
+
+  const { fights } = useFetchFightPlayerByIds({
+    indexes: playerFights,
+  });
 
   const getFightPlayerPda = (counter: number) => {
     const [fightPlayerPda] = PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new BN(counter).toArrayLike(Buffer, 'le', 8),
+        new BN(counter).toArrayLike(Buffer, 'le', 2),
       ],
       program.programId
     );
@@ -27,32 +37,24 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
   };
 
   const acceptFight = (fightPlayer: any) => {
-    if (fightsQuery.data) {
-      let counter = 0;
-      let fightPlayerPda = getFightPlayerPda(counter);
-      while (fightPlayerPda.toString() !== fightPlayer.publicKey.toString()) {
-        counter++;
-        fightPlayerPda = getFightPlayerPda(counter);
-        console.log(fightPlayerPda);
-      }
+    if (fights.length) {
+      const fightPlayerPda = getFightPlayerPda(fightPlayer.counter);
 
       if (fightPlayer) {
         const player1Pda = players.data?.find(
           (player) =>
-            player.account.user.toString() ===
-            fightPlayer.account.player1.toString()
+            player.account.user.toString() === fightPlayer.player1.toString()
         );
         const player2Pda = players.data?.find(
           (player) =>
-            player.account.user.toString() ===
-            fightPlayer.account.player2.toString()
+            player.account.user.toString() === fightPlayer.player2.toString()
         );
 
         if (player1Pda && player2Pda)
           startFight.mutateAsync({
-            counter: new BN(counter),
-            player1: fightPlayer.account.player1.toString(),
-            player2: fightPlayer.account.player2.toString(),
+            counter: fightPlayer.counter,
+            player1: fightPlayer.player1.toString(),
+            player2: fightPlayer.player2.toString(),
             player1Pda: player1Pda.publicKey,
             player2Pda: player2Pda.publicKey,
             fightPlayerPda: fightPlayerPda,
@@ -68,15 +70,16 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
       </h1>
 
       <div className="grid md:grid-cols-1 gap-4 text-sm">
-        {fightsQuery.data
+        {fights
           ?.filter(
             (f) =>
-              f.account.player2.toString() === account.toString() &&
-              f.account.status.initialized
+              [f?.player1.toString(), f?.player2.toString()].includes(
+                account.toString()
+              ) && f?.status.initialized
           )
           .map((fight, index) => (
             <div
-              key={fight.publicKey.toString()}
+              key={`fight-${index}`}
               className="text-sm border-b border-slate-700/60"
             >
               <div className="grid grid-cols-3">
@@ -85,7 +88,7 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
                     players.data?.find(
                       (player) =>
                         player.account.user.toString() ===
-                        fight.account.player1.toString()
+                        fight?.player1.toString()
                     )?.account.username
                   }{' '}
                   vs{' '}
@@ -93,13 +96,13 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
                     players.data?.find(
                       (player) =>
                         player.account.user.toString() ===
-                        fight.account.player2.toString()
+                        fight?.player2.toString()
                     )?.account.username
                   }
                 </div>
 
-                {fight.account.status.initialized &&
-                  fight.account.player2.toString() === account.toString() && (
+                {fight?.status.initialized &&
+                  fight?.player2.toString() === account.toString() && (
                     <button
                       onClick={() => {
                         acceptFight(fight);

@@ -4,15 +4,15 @@ import React from 'react';
 
 import { useFight } from '@/components/hooks/useFight';
 import { PublicKey } from '@solana/web3.js';
-
-import { useCastagneProgram } from '../Player/PlayerDataAccess';
+import usePlayers from '../hooks/usePlayers';
+import { BN } from '@coral-xyz/anchor';
 
 const RequestFight = ({ account }: { account: PublicKey }) => {
   const { initFight, fightCounter, program } = useFight({
     account,
   });
 
-  const { players } = useCastagneProgram();
+  const players = usePlayers();
 
   const selectPlayer = (value: string) => {
     const player2Pda = players.data?.find(
@@ -28,7 +28,7 @@ const RequestFight = ({ account }: { account: PublicKey }) => {
         const [fightPlayerPda] = PublicKey.findProgramAddressSync(
           [
             Buffer.from('fight_player'),
-            fightCounter.data?.counter.toArrayLike(Buffer, 'le', 8),
+            new BN(fightCounter.data?.counter).toArrayLike(Buffer, 'le', 2),
           ],
           program.programId
         );

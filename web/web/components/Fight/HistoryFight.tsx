@@ -2,17 +2,22 @@
 
 import React from 'react';
 
-import { useFight } from '@/components/hooks/useFight';
 import { PublicKey } from '@solana/web3.js';
 
-import { useCastagneProgram } from '../Player/PlayerDataAccess';
+import usePlayers from '../hooks/usePlayers';
+import { useFetchFightPlayerByIds } from '../hooks/useFetchMultiple';
 
 const HistoryFights = ({ account }: { account: PublicKey }) => {
-  const { fightsQuery } = useFight({
-    account,
-  });
+  const players = usePlayers();
 
-  const { players } = useCastagneProgram();
+  const playerFights =
+    players.data?.find(
+      (player) => player.account.user.toString() === account.toString()
+    )?.account.fights || [];
+
+  const { fights } = useFetchFightPlayerByIds({
+    indexes: playerFights,
+  });
 
   return (
     <div>
@@ -21,16 +26,16 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
       </h1>
 
       <div className="grid md:grid-cols-1 gap-4 text-sm">
-        {fightsQuery.data
+        {fights
           ?.filter(
             (f) =>
-              (f.account.player2.toString() === account.toString() ||
-                f.account.player1.toString() === account.toString()) &&
-              !f.account.status.initialized
+              (f?.player2.toString() === account.toString() ||
+                f?.player1.toString() === account.toString()) &&
+              !f?.status.initialized
           )
-          .map((fight) => (
+          .map((fight, index) => (
             <div
-              key={fight.publicKey.toString()}
+              key={`fights-history-${index}`}
               className="text-sm border-b border-slate-700/60"
             >
               <div className="grid grid-cols-3">
@@ -40,7 +45,7 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
                     players.data?.find(
                       (player) =>
                         player.account.user.toString() ===
-                        fight.account.player1.toString()
+                        fight?.player1.toString()
                     )?.account.username
                   }
                 </div>
@@ -51,7 +56,7 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
                     players.data?.find(
                       (player) =>
                         player.account.user.toString() ===
-                        fight.account.player2.toString()
+                        fight?.player2.toString()
                     )?.account.username
                   }
                 </div>
@@ -59,15 +64,18 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
                 <div>status</div>
                 <div className="text-teal-500">
                   {String(
-                    (fight.account.status.initialized && 'initialized') ||
-                      (fight.account.status.won?.winner.toString() ===
-                        fight.account.player1.toString() &&
+                    (fight?.status.initialized && 'initialized') ||
+                      (fight?.status.won?.winner.toString() ===
+                        fight?.player1.toString() &&
                         'player1 won') ||
-                      (fight.account.status.won?.winner.toString() ===
-                        fight.account.player2.toString() &&
+                      (fight?.status.won?.winner.toString() ===
+                        fight?.player2.toString() &&
                         'player2 won')
                   )}
                 </div>
+
+                <div>rounds</div>
+                <div className="text-teal-500">{fight?.rounds.toString()}</div>
               </div>
             </div>
           ))}
