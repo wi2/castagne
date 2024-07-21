@@ -572,13 +572,33 @@ export type Castagne = {
   "errors": [
     {
       "code": 6000,
-      "name": "notEnoughXp",
-      "msg": "Not enough xp"
+      "name": "levelTooHigh",
+      "msg": "Level too high!"
     },
     {
       "code": 6001,
-      "name": "onlyOwner",
-      "msg": "Only owner!"
+      "name": "playersMustBeDifferent",
+      "msg": "Players must be different!"
+    },
+    {
+      "code": 6002,
+      "name": "playersMustBeInitilazed",
+      "msg": "Fight must be Initilazed!"
+    },
+    {
+      "code": 6003,
+      "name": "playerNotExistInFight",
+      "msg": "Player must exist in fight!"
+    },
+    {
+      "code": 6004,
+      "name": "playerConfigError",
+      "msg": "Player must well configured!"
+    },
+    {
+      "code": 6005,
+      "name": "playerMustBeSigner",
+      "msg": "Player must be signer!"
     }
   ],
   "types": [
