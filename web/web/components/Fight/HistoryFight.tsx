@@ -73,6 +73,9 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
                         'player2 won')
                   )}
                 </div>
+
+                <div>rounds</div>
+                <div className="text-teal-500">{fight?.rounds.toString()}</div>
               </div>
             </div>
           ))}

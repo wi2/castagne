@@ -38,9 +38,12 @@ pub fn start_fight(ctx: Context<StartFight>, counter: u16) -> Result<()> {
 
     // 1 seul round pour le moment
     let rounds_result =
-        get_rounds_winner(player1_pda.attributes, player2_pda.attributes, &player2.key);
+        get_rounds_winner(player1_pda.attributes, player2_pda.attributes, &player2.key).unwrap();
 
-    let winner = get_winner(rounds_result?, player1.key(), player2.key())?;
+    let winner = get_winner(&rounds_result, player1.key(), player2.key())?;
+
+    ctx.accounts.fight_player_pda.rounds = rounds_result;
+
     // Update fight player status and xp
     if winner == player1.key() {
         ctx.accounts.fight_player_pda.status = GameState::Won {

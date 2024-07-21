@@ -41,10 +41,12 @@ pub fn init_fight(ctx: Context<InitFight>) -> Result<()> {
         .fights
         .push(ctx.accounts.fight_pda.counter);
 
+    // Update fight player counter
     ctx.accounts.fight_player_pda.counter = ctx.accounts.fight_pda.counter;
 
     // Update fight player status
     ctx.accounts.fight_player_pda.status = GameState::Initialized;
+
     // attribute players
     ctx.accounts.fight_player_pda.player1 = ctx.accounts.player1.key();
     ctx.accounts.fight_player_pda.player2 = ctx.accounts.player2.key();

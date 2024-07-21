@@ -58,8 +58,11 @@ describe.only('start fight', () => {
       fightPlayerPda
     );
 
-    expect(config.player2.publicKey.toString()).to.equal(
-      fightPlayerData.status.won.winner.toString()
+    expect(fightPlayerData.rounds[0]).to.be.false;
+    expect(fightPlayerData.rounds[1]).to.be.false;
+    expect(fightPlayerData.rounds[2]).to.be.false;
+    expect(fightPlayerData.status.won.winner.toString()).to.equal(
+      config.player2.publicKey.toString()
     );
   });
 
