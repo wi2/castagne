@@ -3,10 +3,10 @@ import { Program } from "@coral-xyz/anchor";
 import { Castagne } from "../target/types/castagne";
 import { clusterApiUrl, Connection } from '@solana/web3.js';
 const fs = require('fs');
-
 // set this variable to disable warnings
 // export NODE_NO_WARNINGS=1
 const program = anchor.workspace.Castagne as Program<Castagne>;
+
 
 const setConfig = async (adminWallet: anchor.Wallet) => {
   // Define config PDA
@@ -17,10 +17,8 @@ const setConfig = async (adminWallet: anchor.Wallet) => {
       ],
       program.programId
   );
-
   console.log("\n▸ Set adminWallet:", adminWallet.publicKey.toString());
   console.log("▸ Set configPda  :", configPda.toString());
-
   // Set config
   try {
     console.log("👉Setting Config ...");
@@ -65,94 +63,40 @@ const getConfig = async (adminWallet: anchor.Wallet) => {
   }
 }
 
-const create_players = async (): Promise<anchor.web3.Keypair[]> => {
-  console.log('\n👉Creating players ...');
-  const usernames = ['bob', 'alice', 'lol', 'La Brute', 'Crados'];
-  const players: anchor.web3.Keypair[] = [];
+const init_fight = async (adminWallet: anchor.Wallet) => {
+  const [fightPda] = anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from('fight')],
+    program.programId
+  );
 
-  for (const username of usernames) {
-    console.log('▸ username', username);
-    
-    const player: anchor.web3.Keypair = anchor.web3.Keypair.generate();
-    let tx = await program.provider.connection.requestAirdrop(player.publicKey, 10_000_000_000);
-    await program.provider.connection.confirmTransaction(tx);
+  console.log("\n▸ Init fight config:", fightPda.toString());
 
-    const [playerPda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("player"), player.publicKey.toBuffer()],
-      program.programId
-    );
-
-    players.push(player);
-
-    await program.methods
-      .createPlayer(username)
+  try {
+    console.log("👉Initiating fight config ...");
+    const tx = await program.methods
+      .initFightConfig()
       .accounts({
-        user: player.publicKey,
-        player: playerPda,
-        systemProgram: anchor.web3.SystemProgram.programId,
+        owner: adminWallet.publicKey,
+        fight_pda: fightPda,
       } as any)
-      .signers([player])
       .rpc();
 
-      let _player = await program.account.player.fetch(playerPda);
-      console.table({
-        username: _player.username,
-        user: _player.user.toString(),
-        xp: _player.xp,
-        attributes: _player.attributes.toString(),
-      });
-  }
+      await anchor.getProvider().connection.confirmTransaction(tx, "confirmed");
+      console.log("🟢Init fight Tx  :", tx);
+  } catch (err) {
+    const errMsg = (err as anchor.web3.SendTransactionError).message;
 
-  let _players = await program.account.player.all();
-  console.log('Total players:', _players.length);
-  return players;
-}
-
-const update_players = async (players: anchor.web3.Keypair[]) => {
-  console.log('\n👉Updating players ...');
-  for (const player of players) {
-    const [playerPda] = anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("player"), player.publicKey.toBuffer()],
-      program.programId
-    );
-
-    let playerData = await program.account.player.fetch(playerPda);
-    console.log('▸ username', playerData.username);
-
-    let attributes = [];
-    let xp = playerData.xp;
-
-    for (let i = 0; i < playerData.attributes.length; i++) {
-      const number = Math.floor(Math.random() * xp);
-      attributes.push(number);
-      xp -= number;
+    if (errMsg.includes("already in use")) {
+      console.log("🔵Fight config already initiated!");
+    } else {
+      console.log("🔴Fight config unknown error!", err);
     }
-    attributes[playerData.attributes.length -1] += xp;
-
-    await program.methods
-      .updatePlayer(attributes)
-      .accounts({
-        user: player.publicKey,
-        player: playerPda,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      } as any)
-      .signers([player])
-      .rpc();
-
-      console.log('▸ Player updated:');
-      let _player = await program.account.player.fetch(playerPda);
-      console.table({
-        username: _player.username,
-        user: _player.user.toString(),
-        xp: _player.xp,
-        attributes: _player.attributes.toString(),
-      });
   }
 }
 
 const action = async (provider: anchor.AnchorProvider) => {
   // Admin account
-  const adminWallet = provider.wallet as anchor.Wallet
+  const adminWallet: anchor.Wallet = provider.wallet as anchor.Wallet
   const balance = await anchor.getProvider().connection.getBalance(adminWallet.publicKey);
 
   // fund account if needed
@@ -169,12 +113,12 @@ const action = async (provider: anchor.AnchorProvider) => {
 
   await setConfig(adminWallet);
   await getConfig(adminWallet);
-  const players: anchor.web3.Keypair[] = await create_players();
-  await update_players(players);
+  await init_fight(adminWallet);
+  console.log("")
 }
 
-const main = async () => {
 
+const main = async () => {
   let provider: anchor.AnchorProvider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
   const envProvider = process.env.ANCHOR_PROVIDER || "devnet"; // Default to devnet
@@ -200,9 +144,8 @@ const main = async () => {
     console.log("\n▸ Provider  :", provider.connection.rpcEndpoint)
 
     await action(provider);
-
   } catch (err) {
-      console.log("🔴Node not running!");
+    console.log("🔴Node not running!\n");
   }
 }
 
