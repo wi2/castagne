@@ -41,6 +41,8 @@ pub fn init_fight(ctx: Context<InitFight>) -> Result<()> {
         .fights
         .push(ctx.accounts.fight_pda.counter);
 
+    ctx.accounts.fight_player_pda.counter = ctx.accounts.fight_pda.counter;
+
     // Update fight player status
     ctx.accounts.fight_player_pda.status = GameState::Initialized;
     // attribute players
@@ -71,7 +73,6 @@ pub struct InitFightConfig<'info> {
 }
 
 #[derive(Accounts)]
-// #[instruction(id: u64)]
 pub struct InitFight<'info> {
     #[account(mut)]
     pub player1: Signer<'info>,

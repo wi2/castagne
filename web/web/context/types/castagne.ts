@@ -381,7 +381,7 @@ export type Castagne = {
       "args": [
         {
           "name": "counter",
-          "type": "u64"
+          "type": "u16"
         }
       ]
     },
@@ -621,7 +621,7 @@ export type Castagne = {
         "fields": [
           {
             "name": "counter",
-            "type": "u64"
+            "type": "u16"
           }
         ]
       }
@@ -631,6 +631,10 @@ export type Castagne = {
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "counter",
+            "type": "u16"
+          },
           {
             "name": "status",
             "type": {
@@ -646,6 +650,12 @@ export type Castagne = {
           {
             "name": "player2",
             "type": "pubkey"
+          },
+          {
+            "name": "rounds",
+            "type": {
+              "vec": "bool"
+            }
           }
         ]
       }
@@ -705,7 +715,7 @@ export type Castagne = {
           {
             "name": "fights",
             "type": {
-              "vec": "u64"
+              "vec": "u16"
             }
           }
         ]

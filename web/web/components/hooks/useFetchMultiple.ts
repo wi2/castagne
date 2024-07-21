@@ -6,11 +6,15 @@ import { useQuery } from '@tanstack/react-query';
 import { useCastagneProgram } from './useCastagneProgram';
 import { BN } from '@coral-xyz/anchor';
 
-export const useFetchFightPlayerByIds = ({ indexes }: { indexes: BN[] }) => {
+export const useFetchFightPlayerByIds = ({
+  indexes,
+}: {
+  indexes: number[];
+}) => {
   const { cluster, program } = useCastagneProgram();
   const pdas = indexes.map((index) => {
     const [fightPlayerPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from('fight_player'), index.toArrayLike(Buffer, 'le', 8)],
+      [Buffer.from('fight_player'), new BN(index).toArrayLike(Buffer, 'le', 2)],
       program.programId
     );
     return fightPlayerPda;

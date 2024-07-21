@@ -5,7 +5,7 @@ use crate::state::fight::{FightPlayer, GameState};
 use crate::state::player::Player;
 use anchor_lang::prelude::*;
 
-pub fn start_fight(ctx: Context<StartFight>, counter: u64) -> Result<()> {
+pub fn start_fight(ctx: Context<StartFight>, counter: u16) -> Result<()> {
     // Player must exist in fight
     require!(
         ctx.accounts.player1_pda.fights.contains(&counter)
@@ -58,7 +58,7 @@ pub fn start_fight(ctx: Context<StartFight>, counter: u64) -> Result<()> {
 }
 
 #[derive(Accounts)]
-#[instruction(counter: u64)]
+#[instruction(counter: u16)]
 pub struct StartFight<'info> {
     #[account(mut)]
     pub player2: Signer<'info>,

@@ -29,7 +29,7 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
     const [fightPlayerPda] = PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new BN(counter).toArrayLike(Buffer, 'le', 8),
+        new BN(counter).toArrayLike(Buffer, 'le', 2),
       ],
       program.programId
     );
@@ -38,31 +38,23 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
 
   const acceptFight = (fightPlayer: any) => {
     if (fights.length) {
-      let counter = 0;
-      let fightPlayerPda = getFightPlayerPda(counter);
-      while (fightPlayerPda.toString() !== fightPlayer.publicKey.toString()) {
-        counter++;
-        fightPlayerPda = getFightPlayerPda(counter);
-        console.log(fightPlayerPda);
-      }
+      const fightPlayerPda = getFightPlayerPda(fightPlayer.counter);
 
       if (fightPlayer) {
         const player1Pda = players.data?.find(
           (player) =>
-            player.account.user.toString() ===
-            fightPlayer.account.player1.toString()
+            player.account.user.toString() === fightPlayer.player1.toString()
         );
         const player2Pda = players.data?.find(
           (player) =>
-            player.account.user.toString() ===
-            fightPlayer.account.player2.toString()
+            player.account.user.toString() === fightPlayer.player2.toString()
         );
 
         if (player1Pda && player2Pda)
           startFight.mutateAsync({
-            counter: new BN(counter),
-            player1: fightPlayer.account.player1.toString(),
-            player2: fightPlayer.account.player2.toString(),
+            counter: fightPlayer.counter,
+            player1: fightPlayer.player1.toString(),
+            player2: fightPlayer.player2.toString(),
             player1Pda: player1Pda.publicKey,
             player2Pda: player2Pda.publicKey,
             fightPlayerPda: fightPlayerPda,
@@ -81,8 +73,9 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
         {fights
           ?.filter(
             (f) =>
-              f?.player2.toString() === account.toString() &&
-              f?.status.initialized
+              [f?.player1.toString(), f?.player2.toString()].includes(
+                account.toString()
+              ) && f?.status.initialized
           )
           .map((fight, index) => (
             <div
