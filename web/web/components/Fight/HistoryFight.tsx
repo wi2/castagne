@@ -6,6 +6,7 @@ import { PublicKey } from '@solana/web3.js';
 
 import usePlayers from '../hooks/usePlayers';
 import { useFetchFightPlayerByIds } from '../hooks/useFetchMultiple';
+import Back from '../back/back';
 
 const HistoryFights = ({ account }: { account: PublicKey }) => {
   const players = usePlayers();
@@ -21,6 +22,7 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
 
   return (
     <div>
+      <Back url={`/player/${account.toString()}`} />
       <h1 className="my-2 border-b border-slate-600 text-lg text-pink-600">
         History
       </h1>

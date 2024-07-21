@@ -8,21 +8,21 @@ import { PublicKey } from '@solana/web3.js';
 import { BN } from '@coral-xyz/anchor';
 import { useFetchFightPlayerByIds } from '../hooks/useFetchMultiple';
 import usePlayers from '../hooks/usePlayers';
+import Back from '../back/back';
 
 const AcceptFight = ({ account }: { account: PublicKey }) => {
-  const { startFight, program } = useFight({
-    account,
-  });
-
   const players = usePlayers();
-
   const playerFights =
     players.data?.find(
       (player) => player.account.user.toString() === account.toString()
     )?.account.fights || [];
 
-  const { fights } = useFetchFightPlayerByIds({
+  const { fights, refetch } = useFetchFightPlayerByIds({
     indexes: playerFights,
+  });
+  const { startFight, program } = useFight({
+    account,
+    refetch,
   });
 
   const getFightPlayerPda = (counter: number) => {
@@ -65,6 +65,7 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
 
   return (
     <div>
+      <Back url={`/player/${account.toString()}`} />
       <h1 className="my-2 border-b border-slate-600 text-lg text-pink-600">
         Fight in wait
       </h1>

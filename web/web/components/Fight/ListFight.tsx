@@ -7,8 +7,9 @@ import { PublicKey } from '@solana/web3.js';
 
 import { Input } from '../ui-elements/Input';
 import { Button } from '../ui-elements/Button';
-import { useCastagneProgram } from '../Player/PlayerDataAccess';
+
 import { BN } from '@coral-xyz/anchor';
+import usePlayers from '../hooks/usePlayers';
 
 interface IInitFightForm {
   player1: PublicKey;
@@ -19,12 +20,12 @@ interface IInitFightForm {
 }
 
 const ListFights = ({ account }: { account: PublicKey }) => {
+  const players = usePlayers();
   const { fightsQuery, initFight, startFight, fightCounter, program } =
     useFight({
       account,
     });
   const [formData, setFormData] = useState<IInitFightForm | null>();
-  const { players } = useCastagneProgram();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;

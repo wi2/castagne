@@ -6,7 +6,13 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCastagneProgram } from './useCastagneProgram';
 import { useCustomToast, useTransactionToast } from '@/components/ui/ui-layout';
 
-export const useFight = ({ account }: { account: PublicKey }) => {
+export const useFight = ({
+  account,
+  refetch,
+}: {
+  account: PublicKey;
+  refetch?: () => Promise<any>;
+}) => {
   const { cluster, program } = useCastagneProgram();
 
   const transactionToast = useTransactionToast();
@@ -62,8 +68,10 @@ export const useFight = ({ account }: { account: PublicKey }) => {
     onSuccess: (tx) => {
       console.log('tx', tx);
       transactionToast(tx);
+      customToast('fight initialized', true);
+
       fightCounter.refetch();
-      return fightsQuery.refetch();
+      return refetch?.();
     },
     onError: (err) => {
       customToast(err.message);
@@ -100,7 +108,7 @@ export const useFight = ({ account }: { account: PublicKey }) => {
     onSuccess: (tx) => {
       console.error('tx', tx);
       transactionToast(tx);
-      return fightsQuery.refetch();
+      return refetch?.();
     },
     onError: (err) => {
       customToast(err.message);
