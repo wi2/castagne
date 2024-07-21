@@ -208,7 +208,7 @@ export function useCustomToast() {
       (t) => (
         <div
           className={`block bg-indigo-50 text-${
-            success ? '' : 'pink-'
+            success ? 'teal-' : 'pink-'
           }700 rounded border border-slate-800 p-2 max-w-xl
         text-center
         ${t.visible ? 'animate-enter' : 'animate-leave'}`}

@@ -68,7 +68,7 @@ export const useFight = ({
     onSuccess: (tx) => {
       console.log('tx', tx);
       transactionToast(tx);
-      customToast('fight initialized', true);
+      customToast('New fight initialized', true);
 
       fightCounter.refetch();
       return refetch?.();
@@ -108,6 +108,7 @@ export const useFight = ({
     onSuccess: (tx) => {
       console.error('tx', tx);
       transactionToast(tx);
+      customToast('Fight terminated', true);
       return refetch?.();
     },
     onError: (err) => {
