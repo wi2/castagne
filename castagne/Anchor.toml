@@ -19,7 +19,8 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/castagne/*.ts"
-init-fight-cfg = "ts-node scripts/init_config.ts"
+init-config = "ts-node scripts/init_config.ts"
+init-fight-config = "ts-node scripts/init_fight.ts"
 create-player = "ts-node scripts/create_players.ts"
 read-player = "ts-node scripts/read_players.ts"
 sync = "cp -r target/idl/ ../web/web/context/idl && cp -r target/types/ ../web/web/context/types"

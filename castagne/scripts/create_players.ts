@@ -1,78 +1,24 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Castagne } from "../target/types/castagne";
-import { clusterApiUrl, Connection } from '@solana/web3.js';
+import { getProgramConfig } from "./config";
 const fs = require('fs');
 
 // set this variable to disable warnings
 // export NODE_NO_WARNINGS=1
-const program = anchor.workspace.Castagne as Program<Castagne>;
 
-const setConfig = async (adminWallet: anchor.Wallet) => {
-  // Define config PDA
-  let [configPda, _] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("config"),
-        adminWallet.publicKey.toBuffer()
-      ],
-      program.programId
-  );
 
-  console.log("\n▸ Set adminWallet:", adminWallet.publicKey.toString());
-  console.log("▸ Set configPda  :", configPda.toString());
+const create_players = async (
+  program: anchor.Program<Castagne>
+): Promise<anchor.web3.Keypair[]> => {
 
-  // Set config
-  try {
-    console.log("👉Setting Config ...");
-    const tx = await program.methods
-    .initializeConfig()
-    .accounts(
-      {
-        owner: adminWallet.publicKey,
-        config: configPda,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      } as any
-    )
-    .rpc();
-
-    await anchor.getProvider().connection.confirmTransaction(tx, "confirmed");
-    console.log("🟢Config set Tx  :", tx);
-  } catch (err) {
-    const errMsg = (err as anchor.web3.SendTransactionError).message;
-    if (errMsg.includes("already in use")) {
-      console.log("🔵Config already set!");
-    } else {
-      console.log("🔴Config unknown error!", err);
-    }
-  }
-}
-
-const getConfig = async (adminWallet: anchor.Wallet) => {
-  // Define config PDA
-  let [configPda, _] = anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("config"), adminWallet.publicKey.toBuffer()],
-    program.programId
-  );
-
-  console.log("\n▸ Get adminWallet:", adminWallet.publicKey.toString());
-  console.log("▸ Get configPda  :", configPda.toString());
-
-  try {
-    let resultConfig = await program.account.config.fetch(configPda);
-    console.log("🟢Config Owner   :", resultConfig.owner.toString());
-  } catch (err) {
-    console.log("🔴Error getting config owner !", err);
-  }
-}
-
-const create_players = async (): Promise<anchor.web3.Keypair[]> => {
   console.log('\n👉Creating players ...');
   const usernames = ['bob', 'alice', 'lol', 'La Brute', 'Crados'];
   const players: anchor.web3.Keypair[] = [];
 
   for (const username of usernames) {
-    console.log('▸ username', username);
-    
+    console.log('▸ 👉Creating', username);
+
     const player: anchor.web3.Keypair = anchor.web3.Keypair.generate();
     let tx = await program.provider.connection.requestAirdrop(player.publicKey, 10_000_000_000);
     await program.provider.connection.confirmTransaction(tx);
@@ -108,7 +54,10 @@ const create_players = async (): Promise<anchor.web3.Keypair[]> => {
   return players;
 }
 
-const update_players = async (players: anchor.web3.Keypair[]) => {
+const update_players = async (
+  program: anchor.Program<Castagne>,
+  players: anchor.web3.Keypair[]
+) => {
   console.log('\n👉Updating players ...');
   for (const player of players) {
     const [playerPda] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -117,7 +66,7 @@ const update_players = async (players: anchor.web3.Keypair[]) => {
     );
 
     let playerData = await program.account.player.fetch(playerPda);
-    console.log('▸ username', playerData.username);
+    console.log('▸ 👉Updating', playerData.username);
 
     let attributes = [];
     let xp = playerData.xp;
@@ -150,7 +99,10 @@ const update_players = async (players: anchor.web3.Keypair[]) => {
   }
 }
 
-const action = async (provider: anchor.AnchorProvider) => {
+const action = async (
+  program: anchor.Program<Castagne>,
+  provider: anchor.AnchorProvider
+) => {
   // Admin account
   const adminWallet = provider.wallet as anchor.Wallet
   const balance = await anchor.getProvider().connection.getBalance(adminWallet.publicKey);
@@ -167,31 +119,13 @@ const action = async (provider: anchor.AnchorProvider) => {
   console.log("▸ balance   :", balance);
   console.log("▸ program id:", program.idl.address);
 
-  await setConfig(adminWallet);
-  await getConfig(adminWallet);
-  const players: anchor.web3.Keypair[] = await create_players();
-  await update_players(players);
+  const players: anchor.web3.Keypair[] = await create_players(program);
+  await update_players(program, players);
 }
 
 const main = async () => {
 
-  let provider: anchor.AnchorProvider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
-  const envProvider = process.env.ANCHOR_PROVIDER || "devnet"; // Default to devnet
-
-  if (envProvider === 'devnet') {
-    const clusterUrl = clusterApiUrl('devnet')
-    const connection = new Connection(clusterUrl, 'confirmed');
-    const rawdata = fs.readFileSync(process.env.ANCHOR_WALLET);
-    const privKey = Uint8Array.from(JSON.parse(rawdata));
-    const wallet = anchor.web3.Keypair.fromSecretKey(privKey)
-    provider = new anchor.AnchorProvider(
-      connection, new anchor.Wallet(wallet), {
-        preflightCommitment: 'confirmed',
-      });
-
-    anchor.setProvider(provider);
-  }
+  const {program, provider} = await getProgramConfig();
 
   try {
     const version = await program.provider.connection.getVersion();
@@ -199,10 +133,10 @@ const main = async () => {
     console.table(version);
     console.log("\n▸ Provider  :", provider.connection.rpcEndpoint)
 
-    await action(provider);
+    await action(program, provider);
 
   } catch (err) {
-      console.log("🔴Node not running!");
+      console.log("🔴Fatal error!", err);
   }
 }
 
