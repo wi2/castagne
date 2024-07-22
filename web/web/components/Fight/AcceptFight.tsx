@@ -64,6 +64,13 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
     }
   };
 
+  const fightVisible = fights?.filter(
+    (f) =>
+      [f?.player1.toString(), f?.player2.toString()].includes(
+        account.toString()
+      ) && f?.status.initialized
+  );
+
   return (
     <div>
       <Back url={`/player/${account.toString()}`} />
@@ -71,7 +78,7 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
         Fight in wait
       </h1>
 
-      {fights.length === 0 && (
+      {fightVisible.length === 0 && (
         <h1 className="text-teal-500">
           No fight in wait! <br />
           <Link href={`/fight/${account.toString()}/request`} className="btn">
@@ -81,50 +88,43 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
       )}
 
       <div className="grid md:grid-cols-1 gap-4 text-sm">
-        {fights
-          ?.filter(
-            (f) =>
-              [f?.player1.toString(), f?.player2.toString()].includes(
-                account.toString()
-              ) && f?.status.initialized
-          )
-          .map((fight, index) => (
-            <div
-              key={`fight-${index}`}
-              className="text-sm border-b border-slate-700/60"
-            >
-              <div className="grid grid-cols-3">
-                <div className="col-span-2 text-teal-500">
-                  {
-                    players.data?.find(
-                      (player) =>
-                        player.account.user.toString() ===
-                        fight?.player1.toString()
-                    )?.account.username
-                  }{' '}
-                  vs{' '}
-                  {
-                    players.data?.find(
-                      (player) =>
-                        player.account.user.toString() ===
-                        fight?.player2.toString()
-                    )?.account.username
-                  }
-                </div>
-
-                {fight?.status.initialized &&
-                  fight?.player2.toString() === account.toString() && (
-                    <button
-                      onClick={() => {
-                        acceptFight(fight);
-                      }}
-                    >
-                      Accept fight
-                    </button>
-                  )}
+        {fightVisible.map((fight, index) => (
+          <div
+            key={`fight-${index}`}
+            className="text-sm border-b border-slate-700/60"
+          >
+            <div className="grid grid-cols-3">
+              <div className="col-span-2 text-teal-500">
+                {
+                  players.data?.find(
+                    (player) =>
+                      player.account.user.toString() ===
+                      fight?.player1.toString()
+                  )?.account.username
+                }{' '}
+                vs{' '}
+                {
+                  players.data?.find(
+                    (player) =>
+                      player.account.user.toString() ===
+                      fight?.player2.toString()
+                  )?.account.username
+                }
               </div>
+
+              {fight?.status.initialized &&
+                fight?.player2.toString() === account.toString() && (
+                  <button
+                    onClick={() => {
+                      acceptFight(fight);
+                    }}
+                  >
+                    Accept fight
+                  </button>
+                )}
             </div>
-          ))}
+          </div>
+        ))}
       </div>
     </div>
   );
