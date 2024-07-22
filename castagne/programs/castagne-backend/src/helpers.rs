@@ -55,13 +55,13 @@ pub fn get_rounds_winner(attr1: [u32; 3], attr2: [u32; 3], key: &Pubkey) -> Resu
 
 pub fn get_winner(rounds: &Vec<bool>, player1: Pubkey, player2: Pubkey) -> Result<Pubkey> {
     let mut player1_win = 0;
-    for index in 0..rounds.len() - 1 {
+    for index in 0..rounds.len() {
         if rounds[index] {
             player1_win += 1;
         }
     }
 
-    let winner = if player1_win > NUMBER_OF_ROUNDS / 2 {
+    let winner = if player1_win > NUMBER_OF_ROUNDS - player1_win {
         player1
     } else {
         player2
