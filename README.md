@@ -1,19 +1,22 @@
 # castagne 🥊
 
+[Arnaud Séné](https://github.com/ArnaudSene)
+[Michael Gaeta](https://github.com/wi2/)
+
 ❗️❗️❗️❗️ DO NOT FORGET VERCEL LINK ❗️❗️❗️❗️
 
 Castagne is a fighting game between 2 players with random management of hitting points.
 
 ## 1. Explanation
 
-A player has 3 characteristics, strength, speed and robustness for which he has allocated points.
+A player has 3 characteristics, strength, speed and robustness for which he has awarded points.
 
-When the fight begins, the characteristics of the 2 players are added together determining the min and max. The random number is generated in this range. If the number is in the range of points of player 1 he wins otherwise player 2 wins.
+When the fight begins, the characteristics of the 2 players are added together determining the min and max. The random number is generated in this range. If the number is within player 1's point range, he wins, otherwise player 2 wins.
 
-The match is played over 3 rounds, the winner is the one who wins at least 2 rounds.
+The match is played in 3 rounds, the winner is the one who wins at least 2 rounds.
 
-The winner is awarded XP points.
-Every 10 matches players receive XP points regardless of their result.
+The winner receives 100 XP points.
+Every 10 matches, players receive 10 XP points regardless of their result.
 
 XP points can be used to modify characteristics.
 
@@ -50,12 +53,16 @@ cd castagne
 
 #### Install dependencies
 
+Anchor program
+
 ```bash
-# Anchor program
 cd castagne
 npm install
+```
 
-# Web app
+Web app
+
+```bash
 cd ../web
 npm install
 ```
@@ -85,52 +92,72 @@ solana airdrop 100
 
 # Show your account
 solana account <publicKey>
+
+# or
+
+solana account  ~/.config/solana/<file>.json
 ```
 
 ## 3. App: Build and deploy
 
-### Build the contract
+### 3.1 Build the contract
 
 ```bash
 # path castagne/castagne
 anchor build
 ```
 
-### Get the program id
+### 3.2 Get the program id
 
 ```bash
 anchor keys list
 ```
 
-### Update file with program id
+### 3.3 Update file with program id
 
 If the program id is different from the one set inside `lib.rs` replace the program id by the new one.
 
+path `castagne/castagne/programs/castagne-backend/src`
 file `lib.rs`
 
 ```rust
 declare_id!("<new program id>");
 ```
 
+path `castagne/castagne`
 file `anchor.toml`
 
 ```toml
 [programs.localnet]
-castagne = "<new program id>"
+castagne = "C7nwDHYxYX2BtKEubo2rc4LScApEekWUtCkNc8YWBSYw"
+
+[programs.devnet]
+castagne = "C7nwDHYxYX2BtKEubo2rc4LScApEekWUtCkNc8YWBSYw"
+
 ```
 
-### Build, deploy and sync
+### 3.4 Build and sync web app
+
+This build takes into account updating files with the program id
+Then synchronize IDL and with web app
+This script will copy `castagne/target/idl` and `castagne/target/types` directories to `web/web/context`
+
+```bash
+anchor build && anchor run sync
+```
+
+### 3.5 deploy
 
 After having updated files, you have to build and deploy
 
-#### Deploy to Localnet
+#### 3.5.1 Deploy to Localnet
 
 ```bash
 # path castagne/castagne
-anchor build && anchor deploy
+anchor deploy
 ```
 
-#### Deploy to devnet | mainnet
+#### 3.5.2 Deploy to devnet | mainnet
 
 ##### Save you wallet private key
 
@@ -139,11 +166,11 @@ anchor build && anchor deploy
 
 ```bash
 # Where:
-# ~/.config/solana/devnet-keypair-raw is the private key exported from your wallet
-# ~/.config/solana/devnet-keypair.json is the private key decoded
+# ~/.config/solana/devnet-keypair-act1-raw is the private key exported from your wallet
+# ~/.config/solana/devnet-keypair-act1.json is the private key decoded
 
 # path castagne/web
-npm run decode-keypair ~/.config/solana/devnet-keypair-raw  ~/.config/solana/devnet-keypair.json
+npm run decode-keypair ~/.config/solana/devnet-keypair-act1-raw  ~/.config/solana/devnet-keypair-act1.json
 ```
 
 ##### Deploy the contract to devnet
@@ -151,18 +178,7 @@ npm run decode-keypair ~/.config/solana/devnet-keypair-raw  ~/.config/solana/dev
 ```bash
 # path castagne/castagne
 
-anchor build && anchor deploy --provider.cluster devnet --provider.wallet ~/.config/solana/devnet-keypair.json
-```
-
-#### Sync IDL and Types
-
-Once the contract has been build, synchromize the IDL and types between program and web app
-This script will copy idl and types directories from `castagne/target/` to `web/web/context`
-
-```bash
-# path castagne/castagne
-
-anchor run sync
+anchor deploy --provider.cluster devnet --provider.wallet ~/.config/solana/devnet-keypair-act1.json
 ```
 
 ## 4. Run Unit tests
@@ -188,16 +204,17 @@ anchor run test
 
 ```bash
 # localnet
+anchor run init-config
+anchor run init-fight-config
 anchor run create_player
 anchor run read_player
-anchor run init-fight-cfg
 anchor run sync
 
 # devnet
-ANCHOR_PROVIDER=devnet anchor run anchor run read_player
+anchor run init-fight-config \
+    --provider.wallet ~/.config/solana/devnet-keypair-act1.json \
+    --provider.cluster devnet
 
-ANCHOR_PROVIDER=devnet anchor run init-fight-cfg \
-    --provider.wallet ~/.config/solana/devnet-keypair.json
 ```
 
 Script are set in the Anchor.toml file
@@ -205,7 +222,8 @@ Script are set in the Anchor.toml file
 ```toml
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/castagne/*.ts"
-init-fight-cfg = "ts-node scripts/init_config.ts"
+init-config = "ts-node scripts/init_config.ts"
+init-fight-config = "ts-node scripts/init_fight.ts"
 create-player = "ts-node scripts/create_players.ts"
 read-player = "ts-node scripts/read_players.ts"
 sync = "cp -r target/idl/ ../web/web/context/idl && cp -r target/types/ ../web/web/context/types"
@@ -222,7 +240,3 @@ npm run build && npm run start
 ```
 
 [Castagne 👉 http://localhost:3000/ ](http://localhost:3000/)
-
-
-@ArnaudSene
-@wi2

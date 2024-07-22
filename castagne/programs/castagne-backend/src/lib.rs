@@ -8,7 +8,7 @@ use instructions::*;
 
 // Run command to get the program_id
 // solana-keygen pubkey target/deploy/castagne_backend-keypair.json
-declare_id!("HVmA4wiTwZHAtZvWgMqAmCLwUtXAPwa5ff9KjVvSwr8v");
+declare_id!("6nz5V5yXbDicEzX57foF4rAETh6gctkbGLY6pQYFLyCB");
 
 #[program]
 pub mod castagne {

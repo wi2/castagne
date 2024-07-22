@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/castagne.json`.
  */
 export type Castagne = {
-  "address": "HVmA4wiTwZHAtZvWgMqAmCLwUtXAPwa5ff9KjVvSwr8v",
+  "address": "6nz5V5yXbDicEzX57foF4rAETh6gctkbGLY6pQYFLyCB",
   "metadata": {
     "name": "castagne",
     "version": "0.1.0",

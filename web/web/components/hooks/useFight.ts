@@ -38,6 +38,34 @@ export const useFight = ({
     queryFn: () => program.account.fightPlayer.all(),
   });
 
+  const initFightConfig = useMutation({
+    mutationKey: ['fight', 'init_fight_config', { cluster, account }],
+    mutationFn: ({
+      owner,
+    }: {
+      owner: PublicKey;
+    }) =>
+      program.methods
+        .initFightConfig()
+        .accountsStrict({
+          owner,
+          fightPda,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc(),
+    onSuccess: (tx) => {
+      console.log('tx', tx);
+      transactionToast(tx);
+      fightCounter.refetch();
+      return fightsQuery.refetch();
+    },
+    onError: (err) => {
+      customToast(err.message);
+      console.log('err', err);
+    },
+  });
+
+
   const initFight = useMutation({
     mutationKey: ['fight', 'init_fight', { cluster, account }],
     mutationFn: ({
@@ -124,5 +152,6 @@ export const useFight = ({
     fightQuery,
     fightsQuery,
     program,
+    initFightConfig,
   };
 };
