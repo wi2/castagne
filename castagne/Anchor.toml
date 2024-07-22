@@ -5,10 +5,10 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-castagne = "6nz5V5yXbDicEzX57foF4rAETh6gctkbGLY6pQYFLyCB"
+castagne = "FvH7Ae6WLxKkb1dt9LZQCSLRhFsiSVvRoj6JR764wt9u"
 
 [programs.devnet]
-castagne = "6nz5V5yXbDicEzX57foF4rAETh6gctkbGLY6pQYFLyCB"
+castagne = "FvH7Ae6WLxKkb1dt9LZQCSLRhFsiSVvRoj6JR764wt9u"
 
 [registry]
 url = "https://api.apr.dev"

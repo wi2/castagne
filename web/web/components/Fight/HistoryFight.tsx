@@ -7,6 +7,7 @@ import { PublicKey } from '@solana/web3.js';
 import usePlayers from '../hooks/usePlayers';
 import { useFetchFightPlayerByIds } from '../hooks/useFetchMultiple';
 import Back from '../back/back';
+import Link from 'next/link';
 
 const HistoryFights = ({ account }: { account: PublicKey }) => {
   const players = usePlayers();
@@ -26,6 +27,15 @@ const HistoryFights = ({ account }: { account: PublicKey }) => {
       <h1 className="my-2 border-b border-slate-600 text-lg text-pink-600">
         History
       </h1>
+
+      {fights.length === 0 && (
+        <h1 className="text-teal-500">
+          No history fight! <br />
+          <Link href={`/fight/${account.toString()}/request`} className="btn">
+            Start a fight
+          </Link>
+        </h1>
+      )}
 
       <div className="grid md:grid-cols-1 gap-4 text-sm">
         {fights

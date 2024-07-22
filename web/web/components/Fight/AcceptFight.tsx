@@ -9,6 +9,7 @@ import { BN } from '@coral-xyz/anchor';
 import { useFetchFightPlayerByIds } from '../hooks/useFetchMultiple';
 import usePlayers from '../hooks/usePlayers';
 import Back from '../back/back';
+import Link from 'next/link';
 
 const AcceptFight = ({ account }: { account: PublicKey }) => {
   const players = usePlayers();
@@ -69,6 +70,15 @@ const AcceptFight = ({ account }: { account: PublicKey }) => {
       <h1 className="my-2 border-b border-slate-600 text-lg text-pink-600">
         Fight in wait
       </h1>
+
+      {fights.length === 0 && (
+        <h1 className="text-teal-500">
+          No fight in wait! <br />
+          <Link href={`/fight/${account.toString()}/request`} className="btn">
+            Start a fight
+          </Link>
+        </h1>
+      )}
 
       <div className="grid md:grid-cols-1 gap-4 text-sm">
         {fights
