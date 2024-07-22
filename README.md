@@ -3,7 +3,7 @@
 [Arnaud Séné](https://github.com/ArnaudSene)
 [Michael Gaeta](https://github.com/wi2/)
 
-❗️❗️❗️❗️ DO NOT FORGET VERCEL LINK ❗️❗️❗️❗️
+[DEMO](https://castagne-sigma.vercel.app/)
 
 Castagne is a fighting game between 2 players with random management of hitting points.
 
@@ -22,15 +22,15 @@ XP points can be used to modify characteristics.
 
 ### Exemple
 
-| Characteristic | player 1 | player 2 | Min | Max            |
-|----------------|----------|----------|-----|----------------|
-| Strengh        | 250      | 350      | 0   | 250 + 350 = 600|
+| Characteristic | player 1 | player 2 | Min | Max             |
+| -------------- | -------- | -------- | --- | --------------- |
+| Strengh        | 250      | 350      | 0   | 250 + 350 = 600 |
 
 Random for strengh
 | Random number | Player 1 | Player 2|
 |---------------|----------|---------|
-| 127           | Winner   |         |
-| 251           |          | Winner  |
+| 127 | Winner | |
+| 251 | | Winner |
 
 ## 2. Getting Started
 
@@ -183,13 +183,13 @@ anchor deploy --provider.cluster devnet --provider.wallet ~/.config/solana/devne
 
 ## 4. Run Unit tests
 
-Run unit test locally with the `solana-test-validator` *stopped*
+Run unit test locally with the `solana-test-validator` _stopped_
 
 ```bash
 anchor test
 ```
 
-Run unit tests locally with the `solana-test-validator` *running*
+Run unit tests locally with the `solana-test-validator` _running_
 
 ```bash
 anchor run test
