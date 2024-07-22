@@ -206,8 +206,8 @@ anchor run test
 # localnet
 anchor run init-config
 anchor run init-fight-config
-anchor run create_player
-anchor run read_player
+anchor run create-player
+anchor run read-player
 anchor run sync
 
 # devnet

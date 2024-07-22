@@ -40,11 +40,7 @@ export const useFight = ({
 
   const initFightConfig = useMutation({
     mutationKey: ['fight', 'init_fight_config', { cluster, account }],
-    mutationFn: ({
-      owner,
-    }: {
-      owner: PublicKey;
-    }) =>
+    mutationFn: ({ owner }: { owner: PublicKey }) =>
       program.methods
         .initFightConfig()
         .accountsStrict({
@@ -64,7 +60,6 @@ export const useFight = ({
       console.log('err', err);
     },
   });
-
 
   const initFight = useMutation({
     mutationKey: ['fight', 'init_fight', { cluster, account }],
@@ -134,7 +129,7 @@ export const useFight = ({
         })
         .rpc(),
     onSuccess: (tx) => {
-      console.error('tx', tx);
+      console.log('tx', tx);
       transactionToast(tx);
       customToast('Fight terminated', true);
       return refetch?.();
