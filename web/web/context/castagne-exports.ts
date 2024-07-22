@@ -21,7 +21,7 @@ export function getCastagneProgramId(cluster: Cluster) {
     case 'devnet':
     case 'testnet':
       // This is the program ID for the Castagne program on devnet and testnet.
-      return new PublicKey('HVmA4wiTwZHAtZvWgMqAmCLwUtXAPwa5ff9KjVvSwr8v');
+      return CASTAGNE_PROGRAM_ID;
     case 'mainnet-beta':
     default:
       return CASTAGNE_PROGRAM_ID;
