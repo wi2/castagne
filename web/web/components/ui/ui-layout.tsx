@@ -26,10 +26,10 @@ export function UiLayout({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="navbar min-h-fit bg-base-300 text-neutral-content flex-col md:flex-row space-y-2 md:space-y-0">
+      <div className="navbar min-h-fit bg-gradient-to-r from-black/40 to-base-300  -bg-base-300 text-neutral-content flex-col md:flex-row space-y-2 md:space-y-0">
         <div className="flex-1">
-          <Link className="btn btn-ghost normal-case text-xl" href="/">
-            <img className="h-4 md:h-6" alt="Logo" src="/logo.png" />
+          <Link className="btn btn-ghost normal-case text-xl -mt-12 -ml-6 md:-ml-0 md:-mt-4" href="/">
+            <img className="h-20 w-20 md:h-16 md:w-16" alt="Logo" src="/castagne1.jpg" />
           </Link>
           <ul className="menu menu-horizontal px-1 space-x-2">
             {links.map(({ label, path }) => (
