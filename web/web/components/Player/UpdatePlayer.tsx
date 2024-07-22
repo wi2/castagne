@@ -5,8 +5,6 @@ import { useCastagneProgramAccount } from './PlayerDataAccess';
 import { PublicKey } from '@solana/web3.js';
 import { Button } from '../ui-elements/Button';
 import { Input } from '../ui-elements/Input';
-import Link from 'next/link';
-import Chevron from '@/assets/svg/chevron';
 import Back from '../back/back';
 
 interface IUpdatePlayerForm {

@@ -102,8 +102,9 @@ export const useCastagneProgramAccount = ({
         })
         .rpc(),
     onSuccess: (tx) => {
-      console.error('tx', tx);
+      console.log('tx', tx);
       transactionToast(tx);
+      window.history.back();
       return playerQuery.refetch();
     },
     onError: (err) => {
