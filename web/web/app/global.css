@@ -17,3 +17,12 @@ body {
 .wallet-adapter-button {
   font-family: inherit !important;
 }
+
+.gradient-text {
+  background: linear-gradient(90deg, #7a15e7, #adaeef );
+  -webkit-background-clip: text; /* For Safari and older versions of Chrome */
+  -moz-background-clip: text;    /* For Firefox (not supported in practice) */
+  background-clip: text;         /* Standard property */
+  -webkit-text-fill-color: transparent; /* For Safari and older versions of Chrome */
+  color: transparent;            /* For other browsers */
+}

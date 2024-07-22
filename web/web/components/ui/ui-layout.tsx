@@ -52,6 +52,7 @@ export function UiLayout({
       <ClusterChecker>
         <AccountChecker />
       </ClusterChecker>
+
       <div className="flex-grow mx-4 lg:mx-auto">
         <Suspense
           fallback={
@@ -64,6 +65,7 @@ export function UiLayout({
         </Suspense>
         <Toaster position="bottom-right" />
       </div>
+
       <footer className="footer footer-center p-4 bg-base-300 text-base-content">
         <aside>
           <p>
@@ -191,33 +193,33 @@ export function useTransactionToast() {
   };
 }
 
-
-
 export function useErrorToast() {
   return (message: string) => {
-    toast.error(
-      <div className={'text-center'}>
-      {message}
-      </div>
-      ,{
-        position: 'bottom-center',
-        duration: 2000
-      }
-    );
+    toast.error(<div className={'text-center'}>{message}</div>, {
+      position: 'bottom-center',
+      duration: 2000,
+    });
   };
 }
 
 export function useCustomToast() {
-  return (message: string) => {
-    toast.custom((t) => (
-      <div className={`bg-slate-950 text-red-500 rounded border border-slate-800 p-2 max-w-xl
+  return (message: string, success?: boolean) => {
+    toast.custom(
+      (t) => (
+        <div
+          className={`block bg-indigo-50 text-${
+            success ? 'teal-' : 'pink-'
+          }700 rounded border border-slate-800 p-2 max-w-xl
         text-center
-        ${t.visible ? 'animate-enter' : 'animate-leave'}`}>
-        {message}
-      </div>
-    ), {
-      position: 'bottom-center',
-      duration: 2000,
-    });
+        ${t.visible ? 'animate-enter' : 'animate-leave'}`}
+        >
+          {message}
+        </div>
+      ),
+      {
+        position: 'bottom-center',
+        duration: 2000,
+      }
+    );
   };
 }

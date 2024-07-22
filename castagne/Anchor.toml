@@ -5,7 +5,10 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-castagne = "HVmA4wiTwZHAtZvWgMqAmCLwUtXAPwa5ff9KjVvSwr8v"
+castagne = "FvH7Ae6WLxKkb1dt9LZQCSLRhFsiSVvRoj6JR764wt9u"
+
+[programs.devnet]
+castagne = "FvH7Ae6WLxKkb1dt9LZQCSLRhFsiSVvRoj6JR764wt9u"
 
 [registry]
 url = "https://api.apr.dev"
@@ -16,5 +19,8 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/castagne/*.ts"
+init-config = "ts-node scripts/init_config.ts"
+init-fight-config = "ts-node scripts/init_fight.ts"
 create-player = "ts-node scripts/create_players.ts"
 read-player = "ts-node scripts/read_players.ts"
+sync = "cp -r target/idl/ ../web/web/context/idl && cp -r target/types/ ../web/web/context/types"

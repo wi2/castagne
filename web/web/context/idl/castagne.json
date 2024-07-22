@@ -1,5 +1,5 @@
 {
-  "address": "HVmA4wiTwZHAtZvWgMqAmCLwUtXAPwa5ff9KjVvSwr8v",
+  "address": "6nz5V5yXbDicEzX57foF4rAETh6gctkbGLY6pQYFLyCB",
   "metadata": {
     "name": "castagne",
     "version": "0.1.0",
@@ -375,7 +375,7 @@
       "args": [
         {
           "name": "counter",
-          "type": "u64"
+          "type": "u16"
         }
       ]
     },
@@ -615,7 +615,7 @@
         "fields": [
           {
             "name": "counter",
-            "type": "u64"
+            "type": "u16"
           }
         ]
       }
@@ -625,6 +625,10 @@
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "counter",
+            "type": "u16"
+          },
           {
             "name": "status",
             "type": {
@@ -640,6 +644,12 @@
           {
             "name": "player2",
             "type": "pubkey"
+          },
+          {
+            "name": "rounds",
+            "type": {
+              "vec": "bool"
+            }
           }
         ]
       }
@@ -699,7 +709,7 @@
           {
             "name": "fights",
             "type": {
-              "vec": "u64"
+              "vec": "u16"
             }
           }
         ]

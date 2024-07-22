@@ -1,7 +1,6 @@
-use anchor_lang::prelude::*;
 use crate::state::player::Player;
-use crate::{constants::PLAYER_XP_INIT, constants::PLAYER_ATTRIBUTES_INIT};
-
+use crate::{constants::PLAYER_ATTRIBUTES_INIT, constants::PLAYER_XP_INIT};
+use anchor_lang::prelude::*;
 
 pub fn create_player(ctx: Context<CreatePlayer>, username: String) -> Result<()> {
     let player = &mut ctx.accounts.player;
@@ -12,7 +11,6 @@ pub fn create_player(ctx: Context<CreatePlayer>, username: String) -> Result<()>
     Ok(())
 }
 
-
 #[derive(Accounts)]
 pub struct CreatePlayer<'info> {
     #[account(mut)]
@@ -21,7 +19,7 @@ pub struct CreatePlayer<'info> {
     #[account(
         init,
         payer = user,
-        space = 8 + std::mem::size_of::<Player>(),
+        space = 8 + std::mem::size_of::<Player>() + 1000,
         seeds = [b"player", user.key().as_ref()],
         bump,
     )]

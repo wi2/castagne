@@ -18,12 +18,7 @@ const HelperUi = () => {
 
   return publicKey ? (
     <div>
-      <AppHero
-        title="Helper"
-        subtitle={
-          ''
-        }
-      >
+      <AppHero title="Helper" subtitle={''}>
         <p className="mb-6">
           Program ID:
           <ExplorerLink
@@ -47,8 +42,7 @@ const HelperUi = () => {
 
       <GetPlayers />
 
-      <button
-      className='bg-slate-950 text-slate-50 rounded border border-slate-700 p-2'
+      <button className='bg-slate-950 text-slate-50 rounded border border-slate-700 p-2'
         onClick={() => customToast("Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe rerum harum porro! Temporibus suscipit pariatur rem! Animi harum illo itaque nihil qui, illum laudantium cupiditate ea labore, voluptate quibusdam quia." || "")}>
           Toast me
       </button>

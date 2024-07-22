@@ -1,14 +1,14 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
 import { Castagne } from "../target/types/castagne";
+import { getProgramConfig } from "./config";
 
 // set this variable to disable warnings
 // export NODE_NO_WARNINGS=1
-const program = anchor.workspace.Castagne as Program<Castagne>;
-const provider = anchor.AnchorProvider.env();
-anchor.setProvider(provider);
 
-const read_players = async () => {
+
+const read_players = async (
+  program: anchor.Program<Castagne>
+) => {
   console.log('\n👉Reading players ...');
 
   let players = await program.account.player.all();
@@ -27,22 +27,20 @@ const read_players = async () => {
 
 const main = async () => {
 
-  const rpcEndpoint = program.provider.connection.rpcEndpoint;
+  const {program, provider} = await getProgramConfig();
 
-  console.log("▸ Local node:", rpcEndpoint);
-  console.log("▸ program id:", program.programId.toString());
+  try {
+    const version = await program.provider.connection.getVersion();
+    console.log("🟢Node is running with version");
+    console.table(version);
+    console.log("\n▸ Provider  :", provider.connection.rpcEndpoint)
+    console.log("▸ program id:", program.idl.address);
 
-  if (program.provider.connection.rpcEndpoint === "http://127.0.0.1:8899") {
+    await read_players(program);
 
-        try {
-            const version = await program.provider.connection.getVersion();
-            console.log("🟢Node is running with version");
-            console.table(version);
-            await read_players();
-        } catch (err) {
-            console.log("🔴Node not running!");
-        }
-    }
+  } catch (err) {
+      console.log("🔴Node not running!");
+  }
 }
 
 main()

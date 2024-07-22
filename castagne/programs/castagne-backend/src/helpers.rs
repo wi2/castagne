@@ -28,7 +28,10 @@ pub fn get_winner_by_round(attr1: [u32; 3], attr2: [u32; 3], key: &Pubkey) -> Re
 
     for index in 0..attr1.len() - 1 {
         let max = attr1[index] + attr2[index];
-        let random_value = generate_random_number(&key, max);
+        let seed = format!("{}{}{}", "random", index, max);
+        let authority_key = Pubkey::create_with_seed(key, &seed, key);
+
+        let random_value = generate_random_number(&authority_key.unwrap(), max);
 
         if random_value.unwrap() <= attr1[index] {
             nb_player1_won += 1;
@@ -41,22 +44,24 @@ pub fn get_winner_by_round(attr1: [u32; 3], attr2: [u32; 3], key: &Pubkey) -> Re
 pub fn get_rounds_winner(attr1: [u32; 3], attr2: [u32; 3], key: &Pubkey) -> Result<Vec<bool>> {
     let mut rounds = Vec::new();
 
-    for _ in 1..NUMBER_OF_ROUNDS {
-        rounds.push(get_winner_by_round(attr1, attr2, &key)?);
+    for index in 0..NUMBER_OF_ROUNDS {
+        let seed = format!("{}{}", "round", index);
+        let authority_key = Pubkey::create_with_seed(key, &seed, key);
+        rounds.push(get_winner_by_round(attr1, attr2, &authority_key.unwrap())?);
     }
 
     Ok(rounds)
 }
 
-pub fn get_winner(rounds: Vec<bool>, player1: Pubkey, player2: Pubkey) -> Result<Pubkey> {
+pub fn get_winner(rounds: &Vec<bool>, player1: Pubkey, player2: Pubkey) -> Result<Pubkey> {
     let mut player1_win = 0;
-    for index in 1..rounds.len() {
+    for index in 0..rounds.len() {
         if rounds[index] {
             player1_win += 1;
         }
     }
 
-    let winner = if player1_win > NUMBER_OF_ROUNDS / 2 {
+    let winner = if player1_win > NUMBER_OF_ROUNDS - player1_win {
         player1
     } else {
         player2

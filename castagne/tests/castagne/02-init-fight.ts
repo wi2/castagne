@@ -21,7 +21,7 @@ describe.only('init fight', () => {
       .rpc();
 
     let fight = await config.program.account.fight.fetch(config.fightPda);
-    expect(fight.counter.toNumber()).to.equal(0);
+    expect(fight.counter).to.equal(0);
   });
 
   // Fight
@@ -31,7 +31,7 @@ describe.only('init fight', () => {
     const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 8),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 2),
       ],
       config.program.programId
     );
@@ -67,7 +67,7 @@ describe.only('init fight', () => {
     const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 8),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 2),
       ],
       config.program.programId
     );
@@ -136,7 +136,7 @@ describe.only('init fight', () => {
     const [fightPlayerPda] = await anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from('fight_player'),
-        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 8),
+        new anchor.BN(fightData.counter).toArrayLike(Buffer, 'le', 2),
       ],
       config.program.programId
     );
@@ -166,11 +166,12 @@ describe.only('init fight', () => {
       fightPlayerPda
     );
 
-    expect(player2Data.fights[0].toNumber()).to.equal(0);
-    expect(player3Data.fights[0].toNumber()).to.equal(0);
+    expect(player2Data.fights[0]).to.equal(0);
+    expect(player3Data.fights[0]).to.equal(0);
+    expect(fightPlayerData.counter).to.equal(0);
 
     fightData = await config.program.account.fight.fetch(config.fightPda);
-    expect(fightData.counter.toNumber()).to.equal(1);
+    expect(fightData.counter).to.equal(1);
 
     expect('initialized' in fightPlayerData.status).to.be.true;
   });

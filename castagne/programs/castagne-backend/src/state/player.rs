@@ -6,5 +6,5 @@ pub struct Player {
     pub username: String,
     pub attributes: [u32; 3],
     pub xp: u32,
-    pub fights: Vec<u64>,
+    pub fights: Vec<u16>,
 }
