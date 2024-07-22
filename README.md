@@ -4,6 +4,7 @@
 [Michael Gaeta](https://github.com/wi2/)
 
 [DEMO](https://castagne-sigma.vercel.app/)
+[Solana explorer](https://explorer.solana.com/address/FvH7Ae6WLxKkb1dt9LZQCSLRhFsiSVvRoj6JR764wt9u?cluster=devnet)
 
 Castagne is a fighting game between 2 players with random management of hitting points.
 
@@ -206,8 +207,8 @@ anchor run test
 # localnet
 anchor run init-config
 anchor run init-fight-config
-anchor run create_player
-anchor run read_player
+anchor run create-player
+anchor run read-player
 anchor run sync
 
 # devnet
